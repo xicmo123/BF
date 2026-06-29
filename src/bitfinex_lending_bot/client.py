@@ -162,8 +162,10 @@ class BitfinexApiClient:
         raise BitfinexClientError(f"Bitfinex request failed after {self._max_retries} attempts: {path}")
 
     def _retry_sleep_seconds(self, attempt: int, *, rate_limited: bool = False) -> float:
-        multiplier = 2 if rate_limited else 1
-        return self._retry_backoff_seconds * multiplier * (2 ** (attempt - 1))
+        if rate_limited:
+            # Strict 10s -> 20s -> 40s backoff for 429 Too Many Requests
+            return 10.0 * (2 ** (attempt - 1))
+        return self._retry_backoff_seconds * (2 ** (attempt - 1))
 
     @staticmethod
     def _extract_notification_payload(data: Any) -> list[Any]:
