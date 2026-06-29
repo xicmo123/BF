@@ -47,12 +47,24 @@ def metrics(symbol: str | None = None, limit: int = 100):
         total_capital_val = latest_risk.get("total_capital")
 
     # Also compute from latest wallets for live view
+    # Idle Cash should be the available balance from funding wallet (type='funding', currency='fUSD')
     open_offers_total = None
     wallet_balance = None
     wallet_available = None
+    idle_cash_from_wallet = None
+    
     if latest_wallet:
-        wallet_balance = latest_wallet[0].get("balance")
-        wallet_available = latest_wallet[0].get("available_balance")
+        # Filter for funding wallet with fUSD currency
+        funding_wallet = None
+        for wallet in latest_wallet:
+            if wallet.get("wallet_type") == "funding" and wallet.get("currency") == "fUSD":
+                funding_wallet = wallet
+                break
+        
+        if funding_wallet:
+            wallet_balance = funding_wallet.get("balance")
+            wallet_available = funding_wallet.get("available_balance")
+            idle_cash_from_wallet = wallet_available
 
     return JSONResponse({
         "symbol": symbol,
@@ -61,7 +73,7 @@ def metrics(symbol: str | None = None, limit: int = 100):
         "execution_success": execution_success,
         "execution_failure": execution_failure,
         "api_failures": api_failures,
-        "idle_cash": idle_cash,
+        "idle_cash": idle_cash_from_wallet,  # Use funding wallet available balance
         "active_exposure": active_exposure_val,
         "total_capital": total_capital_val,
         "wallet_balance": wallet_balance,
