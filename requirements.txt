@@ -1,0 +1,11 @@
+aiohttp>=3.9
+loguru>=0.7
+numpy>=1.26
+pandas>=2.2
+pytest>=8.0
+python-dotenv>=1.0
+requests>=2.31
+schedule>=1.2
+streamlit>=1.35
+fastapi>=0.95
+uvicorn>=0.23

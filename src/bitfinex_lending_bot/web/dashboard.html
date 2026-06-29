@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lending Bot Ops Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .chart { width: 800px; height: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Lending Bot Ops Dashboard</h1>
+  <div>
+    <label>Symbol: <input id="symbol" value="fUSD"></label>
+    <button onclick="refresh()">Refresh</button>
+  </div>
+  <h2>APY</h2>
+  <canvas id="apyChart" class="chart"></canvas>
+  <h2>PnL</h2>
+  <canvas id="pnlChart" class="chart"></canvas>
+  <h2>Exposure</h2>
+  <canvas id="exposureChart" class="chart"></canvas>
+  <h2>Rollout / Health</h2>
+  <div>
+    <div>
+      Current rollout: <span id="rollout_state">-</span>
+      <button onclick="setRollout(1)">Set 1%</button>
+      <button onclick="setRollout(5)">Set 5%</button>
+      <button onclick="setRollout(10)">Set 10%</button>
+      <button onclick="stopRollout()">Emergency STOP</button>
+    </div>
+    Failure rate: <span id="failure_rate">-</span>
+    <pre id="health"></pre>
+    <div>
+      Auto rollout: <span id="auto_mode">OFF</span>
+      <button onclick="enableAuto()">Enable Auto</button>
+      <button onclick="disableAuto()">Disable Auto</button>
+      <button onclick="runAuto()">Run Auto Now</button>
+      Last auto decision: <span id="last_auto">-</span>
+    </div>
+  </div>
+
+  <script>
+    const apyCtx = document.getElementById('apyChart').getContext('2d')
+    const pnlCtx = document.getElementById('pnlChart').getContext('2d')
+    const exposureCtx = document.getElementById('exposureChart').getContext('2d')
+    let apyChart = new Chart(apyCtx, { type: 'line', data: { labels: [], datasets: [{ label: 'APY', data: [] }] } })
+    let pnlChart = new Chart(pnlCtx, { type: 'line', data: { labels: [], datasets: [{ label: 'PnL', data: [] }] } })
+    let exposureChart = new Chart(exposureCtx, { type: 'line', data: { labels: [], datasets: [ { label: 'Total Capital', data: [] }, { label: 'Active Exposure', data: [] } ] } })
+
+    async function refresh() {
+      const symbol = document.getElementById('symbol').value
+      const res = await fetch(`/metrics?symbol=${symbol}`)
+      const json = await res.json()
+      const apy = json.apy.reverse()
+      const pnl = json.pnl.reverse()
+      apyChart.data.labels = apy.map(r => r.measured_at)
+      apyChart.data.datasets[0].data = apy.map(r => parseFloat(r.apy))
+      apyChart.update()
+
+      pnlChart.data.labels = pnl.map(r => r.measured_at)
+      pnlChart.data.datasets[0].data = pnl.map(r => parseFloat(r.pnl))
+      pnlChart.update()
+
+      const expRes = await fetch(`/exposure?symbol=${symbol}`)
+      const expJson = await expRes.json()
+      const exp = expJson.exposure.reverse()
+      exposureChart.data.labels = exp.map(r => r.measured_at)
+      exposureChart.data.datasets[0].data = exp.map(r => parseFloat(r.total_capital))
+      exposureChart.data.datasets[1].data = exp.map(r => parseFloat(r.active_exposure))
+      exposureChart.update()
+
+      const healthRes = await fetch('/health')
+      const healthJson = await healthRes.json()
+      document.getElementById('health').textContent = JSON.stringify(healthJson, null, 2)
+      const rolloutRes = await fetch('/rollout/state')
+      const rolloutJson = await rolloutRes.json()
+      document.getElementById('rollout_state').textContent = (rolloutJson.state && rolloutJson.state.allocation_percent) || 'unknown'
+      // compute failure rate
+      const succ = json.metrics || []
+      // we don't have direct failure series here; query metrics endpoint could be extended
+      const failureRes = await fetch('/metrics?symbol=' + symbol)
+      const failureJson = await failureRes.json()
+      // approximate failure rate from metrics counts
+      const successes = (failureJson.metrics || []).filter(m => m.name === 'execution_success').length
+      const failures = (failureJson.metrics || []).filter(m => m.name === 'execution_failure').length
+      const total = successes + failures
+      const rate = total > 0 ? (failures / total) : 0
+      document.getElementById('failure_rate').textContent = (rate * 100).toFixed(2) + '%'
+      // refresh auto settings
+      const settings = await fetch('/rollout/settings').then(r => r.json())
+      document.getElementById('auto_mode').textContent = settings.auto_enabled === '1' || settings.auto_enabled === 1 || settings.auto_enabled === 'True' ? 'ON' : 'OFF'
+      document.getElementById('last_auto').textContent = settings.last_decision || settings.last_reason || '-'
+    }
+
+    async function enableAuto() {
+      const res = await fetch('/rollout/auto/enable', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({interval:60, cycles:5})})
+      const j = await res.json()
+      if (!res.ok) alert('Failed enable: ' + JSON.stringify(j))
+      refresh()
+    }
+
+    async function disableAuto() {
+      const res = await fetch('/rollout/auto/disable', {method: 'POST'})
+      const j = await res.json()
+      if (!res.ok) alert('Failed disable: ' + JSON.stringify(j))
+      refresh()
+    }
+
+    async function runAuto() {
+      const res = await fetch('/rollout/auto/run', {method: 'POST'})
+      const j = await res.json()
+      if (!res.ok) alert('Failed run: ' + JSON.stringify(j))
+      else alert('Auto run result: ' + JSON.stringify(j.result))
+      refresh()
+    }
+
+    async function setRollout(percent) {
+      const res = await fetch('/rollout/set', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({percent})})
+      const j = await res.json()
+      if (!res.ok) alert('Failed: ' + JSON.stringify(j))
+      refresh()
+    }
+
+    async function stopRollout() {
+      const res = await fetch('/rollout/stop', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reason: 'manual emergency stop'})})
+      const j = await res.json()
+      if (!res.ok) alert('Failed: ' + JSON.stringify(j))
+      refresh()
+    }
+
+    // auto refresh every 30s
+    setInterval(refresh, 30000)
+    refresh()
+  </script>
+</body>
+</html>
