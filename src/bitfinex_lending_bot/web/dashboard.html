@@ -5,132 +5,398 @@
   <title>Lending Bot Ops Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .chart { width: 800px; height: 300px; }
+    :root {
+      color-scheme: dark;
+      color: #e2e8f0;
+      background: #0f172a;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.88);
+      --panel-border: rgba(148, 163, 184, 0.14);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #8b5cf6;
+      --accent-soft: rgba(124, 58, 237, 0.18);
+      --success: #22c55e;
+      --danger: #f97316;
+      --surface: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 22%),
+                  radial-gradient(circle at top right, rgba(139, 92, 246, 0.14), transparent 20%),
+                  #020617;
+      color: var(--text);
+    }
+    .page {
+      width: min(1400px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .brand {
+      max-width: 620px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      letter-spacing: -0.05em;
+      line-height: 1.02;
+    }
+    .subtitle {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-top: 18px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(148, 163, 184, 0.08);
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+    .hero-actions {
+      display: grid;
+      gap: 14px;
+      min-width: 260px;
+      align-items: flex-end;
+    }
+    .hero-actions .field {
+      display: grid;
+      gap: 10px;
+    }
+    .hero-actions label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .hero-actions input {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 999px;
+      padding: 14px 16px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .hero-actions input:focus {
+      border-color: rgba(59, 130, 246, 0.9);
+    }
+    .hero-actions .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .summary-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin-bottom: 28px;
+    }
+    .card,
+    .chart-card,
+    .control-card,
+    .health-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.18);
+      padding: 22px;
+      backdrop-filter: blur(14px);
+    }
+    .card h2,
+    .chart-card h2,
+    .control-card h2,
+    .health-card h2 {
+      margin: 0 0 14px;
+      color: #cbd5e1;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+    .metric {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      color: #f8fafc;
+      line-height: 1;
+    }
+    .metric small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      border-radius: 999px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+    }
+    .status-chip span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      background: currentColor;
+    }
+    .status-chip.on { color: #4ade80; }
+    .status-chip.off { color: #f87171; }
+    .panel-grid {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: 1.4fr 0.9fr;
+      margin-bottom: 28px;
+    }
+    .chart-grid {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 1fr;
+    }
+    @media(min-width: 960px) {
+      .chart-grid { grid-template-columns: 1fr 1fr; }
+      .chart-grid .wide { grid-column: 1 / -1; }
+    }
+    .chart-card { min-height: 380px; }
+    .chart-card canvas { width: 100% !important; height: 320px !important; }
+    .controls { display: grid; gap: 16px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    button { border: none; border-radius: 999px; padding: 12px 18px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: linear-gradient(135deg, #8b5cf6, #4338ca); color: #fff; box-shadow: 0 18px 35px rgba(67,56,202,0.25); }
+    button.secondary { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    button.danger { background: #f97316; color: #fff; }
+    button.info { background: rgba(34, 197, 94, 0.18); color: #dcfce7; }
+    .health-card pre { margin: 0; background: rgba(255,255,255,0.04); border: 1px solid rgba(148,163,184,0.1); border-radius: 20px; padding: 18px; color: #cbd5e1; max-height: 360px; overflow:auto; }
+    .meta-line { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .control-card .button-row { justify-content: flex-start; }
+    .progress-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top: 12px; }
+    .progress-bar { flex:1; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow:hidden; }
+    .progress-bar span { display:block; height:100%; width:0%; background: linear-gradient(90deg,#38bdf8,#a78bfa); }
   </style>
 </head>
 <body>
-  <h1>Lending Bot Ops Dashboard</h1>
-  <div>
-    <label>Symbol: <input id="symbol" value="fUSD"></label>
-    <button onclick="refresh()">Refresh</button>
-  </div>
-  <h2>APY</h2>
-  <canvas id="apyChart" class="chart"></canvas>
-  <h2>PnL</h2>
-  <canvas id="pnlChart" class="chart"></canvas>
-  <h2>Exposure</h2>
-  <canvas id="exposureChart" class="chart"></canvas>
-  <h2>Rollout / Health</h2>
-  <div>
-    <div>
-      Current rollout: <span id="rollout_state">-</span>
-      <button onclick="setRollout(1)">Set 1%</button>
-      <button onclick="setRollout(5)">Set 5%</button>
-      <button onclick="setRollout(10)">Set 10%</button>
-      <button onclick="stopRollout()">Emergency STOP</button>
-    </div>
-    Failure rate: <span id="failure_rate">-</span>
-    <pre id="health"></pre>
-    <div>
-      Auto rollout: <span id="auto_mode">OFF</span>
-      <button onclick="enableAuto()">Enable Auto</button>
-      <button onclick="disableAuto()">Disable Auto</button>
-      <button onclick="runAuto()">Run Auto Now</button>
-      Last auto decision: <span id="last_auto">-</span>
-    </div>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <h1>Lending Bot Ops Dashboard</h1>
+        <p class="subtitle">Live metrics, rollout controls and execution health for Bitfinex lending.</p>
+        <div class="hero-pill"><span></span>Real-time observability and safe rollout control in one place.</div>
+      </div>
+      <div class="hero-actions">
+        <div class="field">
+          <label for="symbol">Market symbol</label>
+          <input id="symbol" value="fUSD">
+        </div>
+        <div class="button-row">
+          <button class="primary" onclick="refresh()">Refresh data</button>
+          <button class="secondary" onclick="runAuto()">Run auto now</button>
+        </div>
+        <p class="meta-line" id="last_refresh">Updated just now</p>
+      </div>
+    </header>
+
+    <section class="summary-grid">
+      <div class="card">
+        <h2>Rollout allocation</h2>
+        <p class="metric" id="rollout_state">-</p>
+        <div class="progress-row">
+          <span class="meta-line">Current allocation</span>
+          <span class="meta-line" id="rollout_percent">0%</span>
+        </div>
+        <div class="progress-bar"><span id="rollout_progress"></span></div>
+      </div>
+      <div class="card">
+        <h2>Failure rate</h2>
+        <p class="metric" id="failure_rate">-</p>
+        <small>Execution failure ratio from recent metrics.</small>
+      </div>
+      <div class="card">
+        <h2>Auto rollout</h2>
+        <div class="status-chip off" id="auto_mode">OFF</div>
+        <small id="last_auto">Last auto decision unavailable</small>
+      </div>
+    </section>
+
+    <section class="panel-grid">
+      <div class="control-card card">
+        <h2>Rollout controls</h2>
+        <p class="subtitle">Manual value settings and auto rollout toggles. Use emergency stop if needed.</p>
+        <div class="controls">
+          <div class="button-row">
+            <button class="secondary" onclick="setRollout(1)">Set 1%</button>
+            <button class="secondary" onclick="setRollout(5)">Set 5%</button>
+            <button class="secondary" onclick="setRollout(10)">Set 10%</button>
+            <button class="secondary" onclick="setRollout(25)">Set 25%</button>
+          </div>
+          <div class="button-row">
+            <button class="danger" onclick="stopRollout()">Emergency STOP</button>
+          </div>
+          <div class="button-row">
+            <button class="primary" onclick="enableAuto()">Enable Auto</button>
+            <button class="secondary" onclick="disableAuto()">Disable Auto</button>
+          </div>
+        </div>
+      </div>
+      <div class="health-card card">
+        <h2>Health snapshot</h2>
+        <p class="subtitle">Current API and rollout health data from the service.</p>
+        <pre id="health">Loading health...</pre>
+      </div>
+    </section>
+
+    <section class="chart-grid">
+      <div class="chart-card">
+        <h2>APY trend</h2>
+        <canvas id="apyChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2>PnL trend</h2>
+        <canvas id="pnlChart"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <h2>Exposure</h2>
+        <canvas id="exposureChart"></canvas>
+      </div>
+    </section>
   </div>
 
   <script>
     const apyCtx = document.getElementById('apyChart').getContext('2d')
     const pnlCtx = document.getElementById('pnlChart').getContext('2d')
     const exposureCtx = document.getElementById('exposureChart').getContext('2d')
-    let apyChart = new Chart(apyCtx, { type: 'line', data: { labels: [], datasets: [{ label: 'APY', data: [] }] } })
-    let pnlChart = new Chart(pnlCtx, { type: 'line', data: { labels: [], datasets: [{ label: 'PnL', data: [] }] } })
-    let exposureChart = new Chart(exposureCtx, { type: 'line', data: { labels: [], datasets: [ { label: 'Total Capital', data: [] }, { label: 'Active Exposure', data: [] } ] } })
+    const rolloutProgress = document.getElementById('rollout_progress')
+    const lastRefreshLabel = document.getElementById('last_refresh')
+    const themeBlue = '#4338ca'
+    const themePink = '#ec4899'
+    const apyChart = new Chart(apyCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{ label: 'APY', borderColor: themeBlue, backgroundColor: 'rgba(67,56,202,0.12)', fill: true, tension: 0.35, pointRadius: 2, data: [] }]
+      },
+      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+    })
+    const pnlChart = new Chart(pnlCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{ label: 'PnL', borderColor: themePink, backgroundColor: 'rgba(236,72,153,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] }]
+      },
+      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+    })
+    const exposureChart = new Chart(exposureCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Total Capital', borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] },
+          { label: 'Active Exposure', borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] }
+        ]
+      },
+      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+    })
 
     async function refresh() {
       const symbol = document.getElementById('symbol').value
       const res = await fetch(`/metrics?symbol=${symbol}`)
       const json = await res.json()
-      const apy = json.apy.reverse()
-      const pnl = json.pnl.reverse()
+      const apy = (json.apy || []).slice().reverse()
+      const pnl = (json.pnl || []).slice().reverse()
       apyChart.data.labels = apy.map(r => r.measured_at)
-      apyChart.data.datasets[0].data = apy.map(r => parseFloat(r.apy))
+      apyChart.data.datasets[0].data = apy.map(r => parseFloat(r.apy) || 0)
       apyChart.update()
-
       pnlChart.data.labels = pnl.map(r => r.measured_at)
-      pnlChart.data.datasets[0].data = pnl.map(r => parseFloat(r.pnl))
+      pnlChart.data.datasets[0].data = pnl.map(r => parseFloat(r.pnl) || 0)
       pnlChart.update()
 
       const expRes = await fetch(`/exposure?symbol=${symbol}`)
       const expJson = await expRes.json()
-      const exp = expJson.exposure.reverse()
+      const exp = (expJson.exposure || []).slice().reverse()
       exposureChart.data.labels = exp.map(r => r.measured_at)
-      exposureChart.data.datasets[0].data = exp.map(r => parseFloat(r.total_capital))
-      exposureChart.data.datasets[1].data = exp.map(r => parseFloat(r.active_exposure))
+      exposureChart.data.datasets[0].data = exp.map(r => parseFloat(r.total_capital) || 0)
+      exposureChart.data.datasets[1].data = exp.map(r => parseFloat(r.active_exposure) || 0)
       exposureChart.update()
 
-      const healthRes = await fetch('/health')
-      const healthJson = await healthRes.json()
+      const healthJson = await fetch('/health').then(r => r.json())
       document.getElementById('health').textContent = JSON.stringify(healthJson, null, 2)
-      const rolloutRes = await fetch('/rollout/state')
-      const rolloutJson = await rolloutRes.json()
-      document.getElementById('rollout_state').textContent = (rolloutJson.state && rolloutJson.state.allocation_percent) || 'unknown'
-      // compute failure rate
-      const succ = json.metrics || []
-      // we don't have direct failure series here; query metrics endpoint could be extended
-      const failureRes = await fetch('/metrics?symbol=' + symbol)
-      const failureJson = await failureRes.json()
-      // approximate failure rate from metrics counts
-      const successes = (failureJson.metrics || []).filter(m => m.name === 'execution_success').length
-      const failures = (failureJson.metrics || []).filter(m => m.name === 'execution_failure').length
-      const total = successes + failures
-      const rate = total > 0 ? (failures / total) : 0
+
+      const rolloutJson = await fetch('/rollout/state').then(r => r.json())
+      const alloc = rolloutJson.state?.allocation_percent ?? 'unknown'
+      document.getElementById('rollout_state').textContent = alloc
+
+      const successes = (json.execution_success || []).length
+      const failures = (json.execution_failure || []).length
+      const rate = successes + failures > 0 ? (failures / (successes + failures)) : 0
       document.getElementById('failure_rate').textContent = (rate * 100).toFixed(2) + '%'
-      // refresh auto settings
+
       const settings = await fetch('/rollout/settings').then(r => r.json())
-      document.getElementById('auto_mode').textContent = settings.auto_enabled === '1' || settings.auto_enabled === 1 || settings.auto_enabled === 'True' ? 'ON' : 'OFF'
+      const enabled = settings.auto_enabled === 1 || settings.auto_enabled === '1' || settings.auto_enabled === true
+      const autoModeElement = document.getElementById('auto_mode')
+      autoModeElement.textContent = enabled ? 'ON' : 'OFF'
+      autoModeElement.className = enabled ? 'status-chip on' : 'status-chip off'
       document.getElementById('last_auto').textContent = settings.last_decision || settings.last_reason || '-'
+      const percentage = typeof alloc === 'number' ? alloc : parseFloat(alloc) || 0
+      document.getElementById('rollout_percent').textContent = `${percentage}%`
+      rolloutProgress.style.width = `${Math.min(100, Math.max(0, percentage))}%`
+      lastRefreshLabel.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     }
 
     async function enableAuto() {
-      const res = await fetch('/rollout/auto/enable', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({interval:60, cycles:5})})
-      const j = await res.json()
-      if (!res.ok) alert('Failed enable: ' + JSON.stringify(j))
+      const res = await fetch('/rollout/auto/enable', { method: 'POST' })
+      if (!res.ok) alert('Failed enable')
       refresh()
     }
-
     async function disableAuto() {
-      const res = await fetch('/rollout/auto/disable', {method: 'POST'})
-      const j = await res.json()
-      if (!res.ok) alert('Failed disable: ' + JSON.stringify(j))
+      const res = await fetch('/rollout/auto/disable', { method: 'POST' })
+      if (!res.ok) alert('Failed disable')
       refresh()
     }
-
     async function runAuto() {
-      const res = await fetch('/rollout/auto/run', {method: 'POST'})
+      const res = await fetch('/rollout/auto/run', { method: 'POST' })
       const j = await res.json()
       if (!res.ok) alert('Failed run: ' + JSON.stringify(j))
-      else alert('Auto run result: ' + JSON.stringify(j.result))
+      else alert('Auto run result: ' + JSON.stringify(j.result || j))
       refresh()
     }
-
     async function setRollout(percent) {
-      const res = await fetch('/rollout/set', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({percent})})
-      const j = await res.json()
-      if (!res.ok) alert('Failed: ' + JSON.stringify(j))
+      const res = await fetch('/rollout/set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ percent })
+      })
+      if (!res.ok) alert('Failed: ' + JSON.stringify(await res.json()))
       refresh()
     }
-
     async function stopRollout() {
-      const res = await fetch('/rollout/stop', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reason: 'manual emergency stop'})})
-      const j = await res.json()
-      if (!res.ok) alert('Failed: ' + JSON.stringify(j))
+      const res = await fetch('/rollout/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'manual emergency stop' })
+      })
+      if (!res.ok) alert('Failed stop')
       refresh()
     }
-
-    // auto refresh every 30s
     setInterval(refresh, 30000)
     refresh()
   </script>
