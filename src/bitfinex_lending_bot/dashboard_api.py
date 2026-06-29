@@ -34,6 +34,26 @@ def metrics(symbol: str | None = None, limit: int = 100):
     execution_success = repo.get_metrics("execution_success", limit)
     execution_failure = repo.get_metrics("execution_failure", limit)
     api_failures = repo.get_metrics("api_failure", limit)
+
+    # Latest risk decision for idle_cash + exposure snapshot
+    latest_risk = repo.latest_risk_decision()
+    latest_wallet = repo.latest_wallets(limit=1)
+    idle_cash = None
+    active_exposure_val = None
+    total_capital_val = None
+    if latest_risk is not None:
+        idle_cash = latest_risk.get("idle_cash")
+        active_exposure_val = latest_risk.get("active_exposure")
+        total_capital_val = latest_risk.get("total_capital")
+
+    # Also compute from latest wallets for live view
+    open_offers_total = None
+    wallet_balance = None
+    wallet_available = None
+    if latest_wallet:
+        wallet_balance = latest_wallet[0].get("balance")
+        wallet_available = latest_wallet[0].get("available_balance")
+
     return JSONResponse({
         "symbol": symbol,
         "apy": apy,
@@ -41,6 +61,11 @@ def metrics(symbol: str | None = None, limit: int = 100):
         "execution_success": execution_success,
         "execution_failure": execution_failure,
         "api_failures": api_failures,
+        "idle_cash": idle_cash,
+        "active_exposure": active_exposure_val,
+        "total_capital": total_capital_val,
+        "wallet_balance": wallet_balance,
+        "wallet_available": wallet_available,
     })
 
 

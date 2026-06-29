@@ -221,6 +221,14 @@ class LendingBot:
                     self._repository.update_decision_trace(pending_trace_id, executed_trace)
                 else:
                     self._record_decision_trace(executed_trace)
+
+                # 紀錄執行結果到 Exposure 與 Metrics (供 Dashboard 讀取)
+                try:
+                    if getattr(self, "_ops", None):
+                        self._ops.record_execution_result(executed_trace, wallets, open_offers)
+                except Exception as exc:
+                    logger.error("Failed to record execution result to OpsManager: {}", exc)
+
                 logger.info("Lending bot cycle completed")
         except (NotificationError, ValueError) as exc:
             logger.exception("Bot run failed")

@@ -398,9 +398,9 @@
     <!-- Hero Section: Core Assets -->
     <section class="mb-8">
       <div class="glass-card-static p-6 sm:p-8">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
           <!-- Total PnL -->
-          <div class="col-span-2 lg:col-span-1">
+          <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">總收益</p>
             <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neon num" id="totalPnl">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">累計盈虧</p>
@@ -425,6 +425,13 @@
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">運作資金</p>
             <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white num" id="activeCapital">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">Active Capital</p>
+          </div>
+
+          <!-- Idle Cash -->
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">閒置資金</p>
+            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sky-400 num" id="idleCash">$0.00</p>
+            <p class="text-xs text-slate-600 mt-1">未參與放貸之資金</p>
           </div>
         </div>
       </div>
@@ -499,6 +506,59 @@
           </svg>
           <span>🚨 一鍵撤資 / 安全暫停</span>
         </button>
+      </div>
+    </section>
+
+    <!-- Asset Allocation Report -->
+    <section class="mb-8">
+      <div class="glass-card p-6">
+        <h2 class="text-lg font-bold text-white mb-5">📊 資金分配明細</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-5">
+          <!-- Open Offers (Pending queue) -->
+          <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3 h-3 rounded-full bg-[#22d65e]"></span>
+              <span class="text-sm font-medium text-slate-400">掛單待借出</span>
+            </div>
+            <p class="text-2xl font-bold text-white num" id="allocOpenOffers">$0.00</p>
+            <p class="text-xs text-slate-600 mt-0.5">市場排隊中</p>
+          </div>
+          <!-- Active Lending (Earning interest) -->
+          <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3 h-3 rounded-full bg-[#a78bfa]"></span>
+              <span class="text-sm font-medium text-slate-400">運作中收息</span>
+            </div>
+            <p class="text-2xl font-bold text-white num" id="allocActiveLending">$0.00</p>
+            <p class="text-xs text-slate-600 mt-0.5">已借出計息中</p>
+          </div>
+          <!-- Idle Balance -->
+          <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3 h-3 rounded-full bg-slate-500"></span>
+              <span class="text-sm font-medium text-slate-400">純閒置餘額</span>
+            </div>
+            <p class="text-2xl font-bold text-white num" id="allocIdleBalance">$0.00</p>
+            <p class="text-xs text-slate-600 mt-0.5">錢包可用資金</p>
+          </div>
+        </div>
+        <!-- Stacked progress bar showing total allocation breakdown -->
+        <div class="mt-2">
+          <div class="flex justify-between text-xs text-slate-600 mb-1.5">
+            <span>資金配置比例</span>
+            <span id="allocBreakdownLabel">—</span>
+          </div>
+          <div class="h-3 rounded-full bg-white/5 overflow-hidden flex">
+            <div id="allocBarOpenOffers" class="h-full bg-[#22d65e] transition-all duration-500" style="width:0%"></div>
+            <div id="allocBarActiveLending" class="h-full bg-[#a78bfa] transition-all duration-500" style="width:0%"></div>
+            <div id="allocBarIdle" class="h-full bg-slate-500 transition-all duration-500" style="width:0%"></div>
+          </div>
+          <div class="flex justify-between text-[0.6rem] text-slate-600 mt-1">
+            <span>🟢 掛單</span>
+            <span>🟣 收息</span>
+            <span>⚪ 閒置</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -669,6 +729,7 @@ const totalPnlEl = document.getElementById('totalPnl');
 const estApyEl = document.getElementById('estApy');
 const totalBalanceEl = document.getElementById('totalBalance');
 const activeCapitalEl = document.getElementById('activeCapital');
+const idleCashEl = document.getElementById('idleCash');
 const allocPercentEl = document.getElementById('allocPercent');
 const allocBarEl = document.getElementById('allocBar');
 const autoToggle = document.getElementById('autoToggle');
@@ -676,6 +737,13 @@ const lastDecisionEl = document.getElementById('lastDecision');
 const healthDot = document.getElementById('healthDot');
 const healthText = document.getElementById('healthText');
 const activityTimeline = document.getElementById('activityTimeline');
+const allocOpenOffersEl = document.getElementById('allocOpenOffers');
+const allocActiveLendingEl = document.getElementById('allocActiveLending');
+const allocIdleBalanceEl = document.getElementById('allocIdleBalance');
+const allocBreakdownLabelEl = document.getElementById('allocBreakdownLabel');
+const allocBarOpenOffersEl = document.getElementById('allocBarOpenOffers');
+const allocBarActiveLendingEl = document.getElementById('allocBarActiveLending');
+const allocBarIdleEl = document.getElementById('allocBarIdle');
 
 // ====== Helpers ======
 function formatCurrency(val) {
@@ -780,6 +848,43 @@ async function refresh() {
 
     totalBalanceEl.textContent = formatCurrency(totalCap);
     activeCapitalEl.textContent = formatCurrency(activeExp);
+
+    // --- Idle Cash & Asset Allocation (from /metrics) ---
+    const idleCash = metrics.idle_cash != null ? parseFloat(metrics.idle_cash) : 0;
+    const walletBalance = metrics.wallet_balance != null ? parseFloat(metrics.wallet_balance) : 0;
+    const walletAvailable = metrics.wallet_available != null ? parseFloat(metrics.wallet_available) : 0;
+
+    idleCashEl.textContent = formatCurrency(idleCash);
+
+    // Compute allocation breakdown
+    // openOffers = active_exposure from exposure history (amount in open offers)
+    // activeLending = total_capital - openOffers - idleCash (estimated lent out)
+    // idleBalance = wallet available balance
+    const allocOpenOffers = activeExp;
+    const allocIdleBalance = walletAvailable > 0 ? walletAvailable : idleCash;
+    const allocActiveLending = Math.max(0, totalCap - allocOpenOffers - allocIdleBalance);
+
+    allocOpenOffersEl.textContent = formatCurrency(allocOpenOffers);
+    allocActiveLendingEl.textContent = formatCurrency(allocActiveLending);
+    allocIdleBalanceEl.textContent = formatCurrency(allocIdleBalance);
+
+    // Stacked bar percentages
+    const totalAlloc = allocOpenOffers + allocActiveLending + allocIdleBalance;
+    if (totalAlloc > 0) {
+      const pctOffers = (allocOpenOffers / totalAlloc) * 100;
+      const pctActive = (allocActiveLending / totalAlloc) * 100;
+      const pctIdle = (allocIdleBalance / totalAlloc) * 100;
+      allocBarOpenOffersEl.style.width = pctOffers + '%';
+      allocBarActiveLendingEl.style.width = pctActive + '%';
+      allocBarIdleEl.style.width = pctIdle + '%';
+      allocBreakdownLabelEl.textContent =
+        '🟢 ' + pctOffers.toFixed(1) + '%  🟣 ' + pctActive.toFixed(1) + '%  ⚪ ' + pctIdle.toFixed(1) + '%';
+    } else {
+      allocBarOpenOffersEl.style.width = '0%';
+      allocBarActiveLendingEl.style.width = '0%';
+      allocBarIdleEl.style.width = '100%';
+      allocBreakdownLabelEl.textContent = '⚪ 100% 閒置';
+    }
 
     // --- Chart ---
     // Use PnL for the main chart, and exposure for the second line
