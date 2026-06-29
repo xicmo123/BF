@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
-import threading
-import time
 
 from .storage import SQLiteRepository
 from .notifier import TelegramNotifier
@@ -17,8 +15,6 @@ class OpsManager:
         self._repo = repository
         self._notifier = notifier
         self._settings = settings
-        self._auto_thread: threading.Thread | None = None
-        self._auto_stop_event: threading.Event | None = None
 
     def record_execution_result(self, trace: DecisionTrace, wallets: list[Any], open_offers: list[FundingOffer]) -> None:
         try:
@@ -179,25 +175,3 @@ class OpsManager:
         except Exception as exc:
             result.update({"error": str(exc)})
             return result
-
-    def start_auto_rollout(self, interval_seconds: int = 60, cycles_stable: int = 5) -> None:
-        if self._auto_thread and self._auto_thread.is_alive():
-            return
-        self._auto_stop_event = threading.Event()
-
-        def runner():
-            while not self._auto_stop_event.is_set():
-                res = self.run_auto_rollout(cycles_stable=cycles_stable)
-                # store last decision
-                self._repo.set_rollout_settings(True, res.get("to", ""), res.get("reason", ""))
-                # sleep
-                time.sleep(interval_seconds)
-
-        self._auto_thread = threading.Thread(target=runner, daemon=True)
-        self._auto_thread.start()
-
-    def stop_auto_rollout(self) -> None:
-        if self._auto_stop_event:
-            self._auto_stop_event.set()
-        self._repo.set_rollout_settings(False, "", "stopped")
-*** End Patch

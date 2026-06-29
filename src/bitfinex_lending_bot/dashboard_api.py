@@ -95,41 +95,45 @@ def rollout_stop(payload: dict = Body({})):
     return JSONResponse({"ok": True})
 
 
-@app.post("/rollout/auto/enable")
-def rollout_auto_enable(payload: dict = Body({})):
-    ops = None
+@app.post("/rollout/auto/run")
+def rollout_auto_run():
+    """
+    Webhook endpoint for external scheduler to trigger auto-rollout evaluation.
+    Checks auto_enabled flag in settings before executing.
+    """
     try:
         from .ops import OpsManager
 
+        # check if auto is enabled
+        settings_row = repo.get_rollout_settings()
+        auto_enabled = settings_row and int(settings_row.get("auto_enabled", "0") or 0) == 1 if settings_row else False
+        
+        if not auto_enabled:
+            return JSONResponse({"skipped": True, "reason": "auto_enabled is False"}, status_code=200)
+        
         ops = OpsManager(repo, notifier, settings)
-        ops.start_auto_rollout(interval_seconds=int(payload.get("interval", 60)), cycles_stable=int(payload.get("cycles", 5)))
-        repo.set_rollout_settings(True, "AUTO_ENABLED", "manual enable")
+        res = ops.run_auto_rollout()
+        return JSONResponse({"ok": True, "result": res})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
-    return JSONResponse({"ok": True})
+
+
+@app.post("/rollout/auto/enable")
+def rollout_auto_enable():
+    """Enable auto-rollout flag. External scheduler will trigger /rollout/auto/run."""
+    try:
+        repo.set_rollout_settings(True, "AUTO_ENABLED", "enabled via API")
+        return JSONResponse({"ok": True})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.post("/rollout/auto/disable")
 def rollout_auto_disable():
+    """Disable auto-rollout flag. External scheduler will skip /rollout/auto/run calls."""
     try:
-        from .ops import OpsManager
-
-        ops = OpsManager(repo, notifier, settings)
-        ops.stop_auto_rollout()
-        repo.set_rollout_settings(False, "AUTO_DISABLED", "manual disable")
-    except Exception as exc:
-        return JSONResponse({"error": str(exc)}, status_code=500)
-    return JSONResponse({"ok": True})
-
-
-@app.post("/rollout/auto/run")
-def rollout_auto_run():
-    try:
-        from .ops import OpsManager
-
-        ops = OpsManager(repo, notifier, settings)
-        res = ops.run_auto_rollout()
-        return JSONResponse({"ok": True, "result": res})
+        repo.set_rollout_settings(False, "AUTO_DISABLED", "disabled via API")
+        return JSONResponse({"ok": True})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
 
