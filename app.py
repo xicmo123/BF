@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from bitfinex_lending_bot.bot import main
+from bitfinex_lending_bot.bot import run_all_users
 
 
 if __name__ == '__main__':
-    main()
+    run_all_users()

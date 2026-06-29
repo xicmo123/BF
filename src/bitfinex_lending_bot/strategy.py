@@ -27,8 +27,8 @@ class PassiveSpreadStrategy(LendingStrategy):
     def __init__(
         self,
         *,
-        min_available: Decimal = Decimal("50"),
-        offer_amount: Decimal = Decimal("50"),
+        min_available: Decimal = Decimal("1"),
+        offer_amount: Decimal = Decimal("1"),
         min_rate: Decimal = Decimal("0.0001"),
         period: int = 2,
     ) -> None:

@@ -179,6 +179,18 @@ class SQLiteRepository:
                 VALUES (1, 0, '', '', '{_now()}');
                 """
             )
+            # api_credentials table for multi-tenant SaaS
+            connection.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS api_credentials (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT NOT NULL UNIQUE,
+                    api_key TEXT NOT NULL,
+                    encrypted_api_secret TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                """
+            )
 
     def _ensure_decision_trace_columns(self, connection: sqlite3.Connection) -> None:
         existing_columns = {row[1] for row in connection.execute("PRAGMA table_info(decision_traces)").fetchall()}
@@ -403,6 +415,35 @@ class SQLiteRepository:
                     _now(),
                 ),
             )
+
+    def save_api_credentials(self, user_id: str, api_key: str, encrypted_secret: str) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO api_credentials (user_id, api_key, encrypted_api_secret, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    api_key = excluded.api_key,
+                    encrypted_api_secret = excluded.encrypted_api_secret,
+                    updated_at = excluded.updated_at
+                """,
+                (user_id, api_key, encrypted_secret, _now()),
+            )
+
+    def get_api_credentials(self, user_id: str = "default_user") -> dict[str, str] | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM api_credentials WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()
+        return _row_to_dict(row) if row is not None else None
+
+    def get_all_api_credentials(self) -> list[dict[str, str]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM api_credentials ORDER BY user_id"
+            ).fetchall()
+        return [_row_to_dict(row) for row in rows]
 
     def repair_pending_decision_traces(self, reason: str) -> None:
         with self._connect() as connection:

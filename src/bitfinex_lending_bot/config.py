@@ -21,6 +21,7 @@ class Settings:
     max_capital_exposure: Decimal = Decimal("0.30")
     max_daily_lending_amount: Decimal = Decimal("500")
     min_idle_cash_threshold: Decimal = Decimal("100")
+    encryption_key: str | None = None
     kill_switch_enabled: bool = False
     max_funding_rate: Decimal = Decimal("0.01")
     max_funding_rate_spread: Decimal = Decimal("0.005")
@@ -56,6 +57,7 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
         kill_switch_enabled=_bool(os.getenv("KILL_SWITCH", "false")),
         max_funding_rate=Decimal(os.getenv("MAX_FUNDING_RATE", "0.01")),
         max_funding_rate_spread=Decimal(os.getenv("MAX_FUNDING_RATE_SPREAD", "0.005")),
+        encryption_key=os.getenv("ENCRYPTION_KEY"),
         paper_trading_enabled=_bool(os.getenv("PAPER_TRADING", "true")),
     )
 

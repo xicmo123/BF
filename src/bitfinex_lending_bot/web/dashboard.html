@@ -1,404 +1,1035 @@
 <!doctype html>
-<html>
+<html lang="zh-TW">
 <head>
   <meta charset="utf-8">
-  <title>Lending Bot Ops Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lending Bot 智能理財</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      color-scheme: dark;
-      color: #e2e8f0;
-      background: #0f172a;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #0f172a;
-      --panel: rgba(15, 23, 42, 0.88);
-      --panel-border: rgba(148, 163, 184, 0.14);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #8b5cf6;
-      --accent-soft: rgba(124, 58, 237, 0.18);
-      --success: #22c55e;
-      --danger: #f97316;
-      --surface: #111827;
-    }
-    * { box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0a0a0f;
+      color: #f1f5f9;
       min-height: 100vh;
-      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 22%),
-                  radial-gradient(circle at top right, rgba(139, 92, 246, 0.14), transparent 20%),
-                  #020617;
-      color: var(--text);
+      overflow-x: hidden;
     }
-    .page {
-      width: min(1400px, calc(100% - 36px));
-      margin: 0 auto;
-      padding: 24px 0 40px;
+
+    /* Animated background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 0% 20%, rgba(88, 28, 135, 0.15), transparent),
+        radial-gradient(ellipse 60% 50% at 100% 0%, rgba(15, 118, 110, 0.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 100%, rgba(59, 130, 246, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
     }
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 24px;
-      align-items: flex-start;
-      margin-bottom: 28px;
+
+    .glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
     }
-    .brand {
-      max-width: 620px;
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    h1 {
-      margin: 0;
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      letter-spacing: -0.05em;
-      line-height: 1.02;
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
     }
-    .subtitle {
-      margin: 16px 0 0;
-      color: var(--muted);
+
+    .glass-card-static {
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Neon green accent */
+    .text-neon { color: #22d65e; }
+    .text-neon-dim { color: rgba(34, 214, 94, 0.7); }
+    .bg-neon { background: #22d65e; }
+    .border-neon { border-color: rgba(34, 214, 94, 0.3); }
+
+    /* Purple accent */
+    .text-purple-accent { color: #a78bfa; }
+    .bg-purple-accent { background: #a78bfa; }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 64px;
+      height: 34px;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.08);
+      border-radius: 34px;
+      transition: 0.3s;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .toggle .slider::before {
+      content: '';
+      position: absolute;
+      height: 26px;
+      width: 26px;
+      left: 3px;
+      bottom: 3px;
+      background: #64748b;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .slider {
+      background: linear-gradient(135deg, rgba(34, 214, 94, 0.3), rgba(167, 139, 250, 0.2));
+      border-color: rgba(34, 214, 94, 0.3);
+    }
+    .toggle input:checked + .slider::before {
+      transform: translateX(30px);
+      background: #22d65e;
+      box-shadow: 0 0 20px rgba(34, 214, 94, 0.4);
+    }
+
+    /* Step buttons */
+    .step-btn {
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      min-width: 72px;
+      text-align: center;
+    }
+    .step-btn:hover {
+      border-color: rgba(167, 139, 250, 0.4);
+      color: #e2e8f0;
+      background: rgba(167, 139, 250, 0.08);
+      transform: translateY(-1px);
+    }
+    .step-btn.active {
+      border-color: rgba(167, 139, 250, 0.5);
+      color: #c4b5fd;
+      background: rgba(167, 139, 250, 0.12);
+      box-shadow: 0 0 24px rgba(167, 139, 250, 0.1);
+    }
+    .step-btn .label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 2px; }
+    .step-btn .value { display: block; font-size: 1.1rem; }
+
+    /* Emergency button */
+    .emergency-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 16px 28px;
+      font-weight: 700;
       font-size: 1rem;
-      line-height: 1.8;
-    }
-    .hero-pill {
-      display: inline-flex;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.08));
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+      width: 100%;
+      display: flex;
       align-items: center;
-      gap: 0.65rem;
-      margin-top: 18px;
-      padding: 14px 18px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(148, 163, 184, 0.08);
-      color: #cbd5e1;
-      font-size: 0.95rem;
-    }
-    .hero-actions {
-      display: grid;
-      gap: 14px;
-      min-width: 260px;
-      align-items: flex-end;
-    }
-    .hero-actions .field {
-      display: grid;
+      justify-content: center;
       gap: 10px;
     }
-    .hero-actions label {
-      color: var(--muted);
-      font-size: 0.9rem;
+    .emergency-btn:hover {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(220, 38, 38, 0.15));
+      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.15);
+      transform: translateY(-1px);
     }
-    .hero-actions input {
-      width: 100%;
-      border: 1px solid rgba(148, 163, 184, 0.24);
+    .emergency-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Progress bar */
+    .alloc-bar {
+      height: 8px;
       border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      overflow: hidden;
+      position: relative;
+    }
+    .alloc-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22d65e, #a78bfa);
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 20px rgba(34, 214, 94, 0.2);
+    }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(167, 139, 250, 0.3), rgba(34, 214, 94, 0.1));
+      border-radius: 2px;
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot {
+      position: absolute;
+      left: -24px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(167, 139, 250, 0.4);
+      background: #0a0a0f;
+    }
+    .timeline-dot.up { border-color: rgba(34, 214, 94, 0.5); }
+    .timeline-dot.up::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: #22d65e;
+      box-shadow: 0 0 12px rgba(34, 214, 94, 0.3);
+    }
+    .timeline-dot.down { border-color: rgba(251, 146, 60, 0.5); }
+    .timeline-dot.down::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: #fb923c;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.3);
+    }
+    .timeline-dot.stop { border-color: rgba(239, 68, 68, 0.5); }
+    .timeline-dot.stop::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    }
+    .timeline-dot.set { border-color: rgba(167, 139, 250, 0.5); }
+    .timeline-dot.set::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: #a78bfa;
+      box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
+    }
+
+    /* Number animation */
+    .num { font-variant-numeric: tabular-nums; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-box {
+      background: linear-gradient(135deg, rgba(20,20,30,0.95), rgba(10,10,15,0.98));
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      width: 90%;
+      max-width: 440px;
+      padding: 32px;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modal-overlay.open .modal-box {
+      transform: scale(1) translateY(0);
+    }
+    .modal-box input {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
       padding: 14px 16px;
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.95rem;
+      color: #f1f5f9;
+      background: rgba(255,255,255,0.04);
       outline: none;
       transition: border-color 0.2s ease;
     }
-    .hero-actions input:focus {
-      border-color: rgba(59, 130, 246, 0.9);
+    .modal-box input:focus {
+      border-color: rgba(167, 139, 250, 0.4);
     }
-    .hero-actions .button-row {
+    .modal-box input::placeholder {
+      color: #475569;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 200;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
+      pointer-events: none;
     }
-    .summary-grid {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      margin-bottom: 28px;
+    .toast {
+      background: linear-gradient(135deg, rgba(20,20,30,0.95), rgba(10,10,15,0.98));
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      pointer-events: all;
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      max-width: 380px;
     }
-    .card,
-    .chart-card,
-    .control-card,
-    .health-card {
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-radius: 24px;
-      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.18);
-      padding: 22px;
-      backdrop-filter: blur(14px);
+    .toast.show {
+      transform: translateX(0);
     }
-    .card h2,
-    .chart-card h2,
-    .control-card h2,
-    .health-card h2 {
-      margin: 0 0 14px;
-      color: #cbd5e1;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      font-size: 0.82rem;
+    .toast.success { border-left: 3px solid #22d65e; }
+    .toast.error { border-left: 3px solid #ef4444; }
+
+    /* Chart container */
+    .chart-container { position: relative; width: 100%; height: 280px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .hero-metric { font-size: 2rem !important; }
+      .hero-label { font-size: 0.75rem !important; }
     }
-    .metric {
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 700;
-      color: #f8fafc;
-      line-height: 1;
-    }
-    .metric small {
-      display: block;
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.65rem;
-      border-radius: 999px;
-      padding: 0.75rem 1rem;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(255,255,255,0.06);
-    }
-    .status-chip span {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      background: currentColor;
-    }
-    .status-chip.on { color: #4ade80; }
-    .status-chip.off { color: #f87171; }
-    .panel-grid {
-      display: grid;
-      gap: 22px;
-      grid-template-columns: 1.4fr 0.9fr;
-      margin-bottom: 28px;
-    }
-    .chart-grid {
-      display: grid;
-      gap: 24px;
-      grid-template-columns: 1fr;
-    }
-    @media(min-width: 960px) {
-      .chart-grid { grid-template-columns: 1fr 1fr; }
-      .chart-grid .wide { grid-column: 1 / -1; }
-    }
-    .chart-card { min-height: 380px; }
-    .chart-card canvas { width: 100% !important; height: 320px !important; }
-    .controls { display: grid; gap: 16px; }
-    .button-row { display: flex; flex-wrap: wrap; gap: 12px; }
-    button { border: none; border-radius: 999px; padding: 12px 18px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
-    button:hover { transform: translateY(-1px); }
-    button.primary { background: linear-gradient(135deg, #8b5cf6, #4338ca); color: #fff; box-shadow: 0 18px 35px rgba(67,56,202,0.25); }
-    button.secondary { background: rgba(255,255,255,0.08); color: #e2e8f0; }
-    button.danger { background: #f97316; color: #fff; }
-    button.info { background: rgba(34, 197, 94, 0.18); color: #dcfce7; }
-    .health-card pre { margin: 0; background: rgba(255,255,255,0.04); border: 1px solid rgba(148,163,184,0.1); border-radius: 20px; padding: 18px; color: #cbd5e1; max-height: 360px; overflow:auto; }
-    .meta-line { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    .control-card .button-row { justify-content: flex-start; }
-    .progress-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top: 12px; }
-    .progress-bar { flex:1; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow:hidden; }
-    .progress-bar span { display:block; height:100%; width:0%; background: linear-gradient(90deg,#38bdf8,#a78bfa); }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="brand">
-        <h1>Lending Bot Ops Dashboard</h1>
-        <p class="subtitle">Live metrics, rollout controls and execution health for Bitfinex lending.</p>
-        <div class="hero-pill"><span></span>Real-time observability and safe rollout control in one place.</div>
-      </div>
-      <div class="hero-actions">
-        <div class="field">
-          <label for="symbol">Market symbol</label>
-          <input id="symbol" value="fUSD">
-        </div>
-        <div class="button-row">
-          <button class="primary" onclick="refresh()">Refresh data</button>
-          <button class="secondary" onclick="runAuto()">Run auto now</button>
-        </div>
-        <p class="meta-line" id="last_refresh">Updated just now</p>
-      </div>
-    </header>
-
-    <section class="summary-grid">
-      <div class="card">
-        <h2>Rollout allocation</h2>
-        <p class="metric" id="rollout_state">-</p>
-        <div class="progress-row">
-          <span class="meta-line">Current allocation</span>
-          <span class="meta-line" id="rollout_percent">0%</span>
-        </div>
-        <div class="progress-bar"><span id="rollout_progress"></span></div>
-      </div>
-      <div class="card">
-        <h2>Failure rate</h2>
-        <p class="metric" id="failure_rate">-</p>
-        <small>Execution failure ratio from recent metrics.</small>
-      </div>
-      <div class="card">
-        <h2>Auto rollout</h2>
-        <div class="status-chip off" id="auto_mode">OFF</div>
-        <small id="last_auto">Last auto decision unavailable</small>
-      </div>
-    </section>
-
-    <section class="panel-grid">
-      <div class="control-card card">
-        <h2>Rollout controls</h2>
-        <p class="subtitle">Manual value settings and auto rollout toggles. Use emergency stop if needed.</p>
-        <div class="controls">
-          <div class="button-row">
-            <button class="secondary" onclick="setRollout(1)">Set 1%</button>
-            <button class="secondary" onclick="setRollout(5)">Set 5%</button>
-            <button class="secondary" onclick="setRollout(10)">Set 10%</button>
-            <button class="secondary" onclick="setRollout(25)">Set 25%</button>
+<div class="relative z-10">
+  <!-- Header -->
+  <header class="glass sticky top-0 z-50 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#22d65e] to-[#a78bfa] flex items-center justify-center shadow-lg shadow-[#22d65e]/20">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-          <div class="button-row">
-            <button class="danger" onclick="stopRollout()">Emergency STOP</button>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-white">Lending Bot</h1>
+            <p class="text-[0.65rem] font-medium text-slate-500 tracking-widest uppercase -mt-0.5">智能理財</p>
           </div>
-          <div class="button-row">
-            <button class="primary" onclick="enableAuto()">Enable Auto</button>
-            <button class="secondary" onclick="disableAuto()">Disable Auto</button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- API Settings Button -->
+          <button onclick="openApiModal()" id="apiSettingsBtn" class="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/5 border border-white/5 text-sm font-medium text-slate-400 hover:text-white hover:border-white/10 transition-all duration-200">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+            </svg>
+            <span id="apiStatusLabel">API 授權設定</span>
+          </button>
+
+          <!-- Health Status -->
+          <div id="healthStatus" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5">
+            <span id="healthDot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+            <span id="healthText" class="text-sm font-medium text-slate-400">連線中...</span>
           </div>
         </div>
       </div>
-      <div class="health-card card">
-        <h2>Health snapshot</h2>
-        <p class="subtitle">Current API and rollout health data from the service.</p>
-        <pre id="health">Loading health...</pre>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <!-- Hero Section: Core Assets -->
+    <section class="mb-8">
+      <div class="glass-card-static p-6 sm:p-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <!-- Total PnL -->
+          <div class="col-span-2 lg:col-span-1">
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">總收益</p>
+            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neon num" id="totalPnl">$0.00</p>
+            <p class="text-xs text-slate-600 mt-1">累計盈虧</p>
+          </div>
+
+          <!-- Est. APY -->
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">預估年化</p>
+            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-purple-accent num" id="estApy">0.00%</p>
+            <p class="text-xs text-slate-600 mt-1">Est. APY</p>
+          </div>
+
+          <!-- Total Balance -->
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">總資金</p>
+            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white num" id="totalBalance">$0.00</p>
+            <p class="text-xs text-slate-600 mt-1">Total Balance</p>
+          </div>
+
+          <!-- Active Capital -->
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">運作資金</p>
+            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white num" id="activeCapital">$0.00</p>
+            <p class="text-xs text-slate-600 mt-1">Active Capital</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="chart-grid">
-      <div class="chart-card">
-        <h2>APY trend</h2>
-        <canvas id="apyChart"></canvas>
+    <!-- Smart Control + Manual Safety Row -->
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+      <!-- Auto-Pilot Control (3 cols) -->
+      <div class="lg:col-span-3 glass-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>🤖 智能自動駕駛</span>
+            </h2>
+            <p class="text-sm text-slate-500 mt-1">開啟後，系統將根據市場與風險自動調配投入資金 (0% ~ 25%)</p>
+          </div>
+          <label class="toggle flex-shrink-0">
+            <input type="checkbox" id="autoToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Current Allocation -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-slate-400">資金投入水位</span>
+            <span class="text-sm font-bold text-white num" id="allocPercent">0%</span>
+          </div>
+          <div class="alloc-bar">
+            <div class="alloc-bar-fill" id="allocBar" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-600 mt-1.5">
+            <span>保守</span>
+            <span>平衡</span>
+            <span>積極</span>
+          </div>
+        </div>
+
+        <!-- Last auto decision -->
+        <div class="mt-4 pt-4 border-t border-white/5">
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-slate-500">上次決策：</span>
+            <span id="lastDecision" class="text-slate-400">—</span>
+          </div>
+        </div>
       </div>
-      <div class="chart-card">
-        <h2>PnL trend</h2>
-        <canvas id="pnlChart"></canvas>
-      </div>
-      <div class="chart-card wide">
-        <h2>Exposure</h2>
-        <canvas id="exposureChart"></canvas>
+
+      <!-- Manual & Safety (2 cols) -->
+      <div class="lg:col-span-2 glass-card p-6">
+        <h2 class="text-lg font-bold text-white mb-4">手動資金檔位</h2>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <button class="step-btn" data-percent="1" onclick="setRollout(1)">
+            <span class="label">保守</span>
+            <span class="value">1%</span>
+          </button>
+          <button class="step-btn" data-percent="5" onclick="setRollout(5)">
+            <span class="label">低風險</span>
+            <span class="value">5%</span>
+          </button>
+          <button class="step-btn" data-percent="10" onclick="setRollout(10)">
+            <span class="label">穩健</span>
+            <span class="value">10%</span>
+          </button>
+          <button class="step-btn" data-percent="25" onclick="setRollout(25)">
+            <span class="label">積極</span>
+            <span class="value">25%</span>
+          </button>
+        </div>
+        <button class="emergency-btn" onclick="emergencyStop()">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <span>🚨 一鍵撤資 / 安全暫停</span>
+        </button>
       </div>
     </section>
+
+    <!-- Performance Chart -->
+    <section class="mb-8">
+      <div class="glass-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-white">績效趨勢</h2>
+          <div class="flex items-center gap-4 text-xs">
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 rounded bg-[#22d65e]"></span>
+              <span class="text-slate-400">收益 (PnL)</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 rounded bg-[#a78bfa]"></span>
+              <span class="text-slate-400">資金曝險</span>
+            </span>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity Timeline -->
+    <section>
+      <div class="glass-card p-6">
+        <h2 class="text-lg font-bold text-white mb-4">近期動態</h2>
+        <div id="activityTimeline" class="timeline">
+          <div class="text-center text-slate-600 py-8 text-sm">載入中...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- API Settings Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">⚙️ API 授權設定</h2>
+      <button onclick="closeApiModal()" class="text-slate-500 hover:text-white transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="space-y-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1.5">API Key</label>
+        <input type="text" id="apiKeyInput" placeholder="請輸入您的 Bitfinex API Key" autocomplete="off">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1.5">API Secret</label>
+        <input type="password" id="apiSecretInput" placeholder="請輸入您的 Bitfinex API Secret">
+      </div>
+    </div>
+    <div class="flex items-start gap-2.5 mb-6 p-3.5 rounded-xl bg-[#a78bfa]/5 border border-[#a78bfa]/10">
+      <svg class="w-5 h-5 text-[#a78bfa] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 017.364 4.636z" />
+      </svg>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        您的 API Secret 將經過<strong class="text-[#a78bfa]">軍規級 AES-256 加密</strong>後安全儲存，系統絕不會以明文形式留存您的金鑰。
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeApiModal()" class="flex-1 py-3 rounded-xl border border-white/10 text-sm font-semibold text-slate-400 hover:text-white hover:border-white/20 transition-all">取消</button>
+      <button onclick="saveApiKeys()" id="saveApiBtn" class="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all"
+        style="background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(34,214,94,0.1)); border: 1px solid rgba(167,139,250,0.2);">
+        <span id="saveApiBtnText">安全儲存</span>
+      </button>
+    </div>
   </div>
+</div>
 
-  <script>
-    const apyCtx = document.getElementById('apyChart').getContext('2d')
-    const pnlCtx = document.getElementById('pnlChart').getContext('2d')
-    const exposureCtx = document.getElementById('exposureChart').getContext('2d')
-    const rolloutProgress = document.getElementById('rollout_progress')
-    const lastRefreshLabel = document.getElementById('last_refresh')
-    const themeBlue = '#4338ca'
-    const themePink = '#ec4899'
-    const apyChart = new Chart(apyCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{ label: 'APY', borderColor: themeBlue, backgroundColor: 'rgba(67,56,202,0.12)', fill: true, tension: 0.35, pointRadius: 2, data: [] }]
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ====== Chart Initialization ======
+const ctx = document.getElementById('mainChart').getContext('2d');
+
+const gradientPnL = ctx.createLinearGradient(0, 0, 0, 280);
+gradientPnL.addColorStop(0, 'rgba(34, 214, 94, 0.25)');
+gradientPnL.addColorStop(1, 'rgba(34, 214, 94, 0.0)');
+
+const gradientExposure = ctx.createLinearGradient(0, 0, 0, 280);
+gradientExposure.addColorStop(0, 'rgba(167, 139, 250, 0.20)');
+gradientExposure.addColorStop(1, 'rgba(167, 139, 250, 0.0)');
+
+const mainChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: 'PnL',
+        borderColor: '#22d65e',
+        backgroundColor: gradientPnL,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHitRadius: 8,
+        borderWidth: 2,
+        data: []
       },
-      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
-    })
-    const pnlChart = new Chart(pnlCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{ label: 'PnL', borderColor: themePink, backgroundColor: 'rgba(236,72,153,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] }]
+      {
+        label: 'Exposure',
+        borderColor: '#a78bfa',
+        backgroundColor: gradientExposure,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHitRadius: 8,
+        borderWidth: 2,
+        data: []
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+      mode: 'index'
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(10, 10, 15, 0.9)',
+        titleColor: '#94a3b8',
+        bodyColor: '#f1f5f9',
+        borderColor: 'rgba(255,255,255,0.06)',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 12,
+        displayColors: true,
+        boxPadding: 4
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: {
+          color: '#475569',
+          maxTicksLimit: 8,
+          font: { size: 11 }
+        }
       },
-      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
-    })
-    const exposureChart = new Chart(exposureCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          { label: 'Total Capital', borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] },
-          { label: 'Active Exposure', borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.14)', fill: true, tension: 0.35, pointRadius: 2, data: [] }
-        ]
-      },
-      options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
-    })
+      y: {
+        grid: {
+          color: 'rgba(255,255,255,0.03)',
+          drawBorder: false
+        },
+        ticks: {
+          color: '#475569',
+          font: { size: 11 },
+          padding: 8
+        }
+      }
+    }
+  }
+});
 
-    async function refresh() {
-      const symbol = document.getElementById('symbol').value
-      const res = await fetch(`/metrics?symbol=${symbol}`)
-      const json = await res.json()
-      const apy = (json.apy || []).slice().reverse()
-      const pnl = (json.pnl || []).slice().reverse()
-      apyChart.data.labels = apy.map(r => r.measured_at)
-      apyChart.data.datasets[0].data = apy.map(r => parseFloat(r.apy) || 0)
-      apyChart.update()
-      pnlChart.data.labels = pnl.map(r => r.measured_at)
-      pnlChart.data.datasets[0].data = pnl.map(r => parseFloat(r.pnl) || 0)
-      pnlChart.update()
+// ====== DOM References ======
+const totalPnlEl = document.getElementById('totalPnl');
+const estApyEl = document.getElementById('estApy');
+const totalBalanceEl = document.getElementById('totalBalance');
+const activeCapitalEl = document.getElementById('activeCapital');
+const allocPercentEl = document.getElementById('allocPercent');
+const allocBarEl = document.getElementById('allocBar');
+const autoToggle = document.getElementById('autoToggle');
+const lastDecisionEl = document.getElementById('lastDecision');
+const healthDot = document.getElementById('healthDot');
+const healthText = document.getElementById('healthText');
+const activityTimeline = document.getElementById('activityTimeline');
 
-      const expRes = await fetch(`/exposure?symbol=${symbol}`)
-      const expJson = await expRes.json()
-      const exp = (expJson.exposure || []).slice().reverse()
-      exposureChart.data.labels = exp.map(r => r.measured_at)
-      exposureChart.data.datasets[0].data = exp.map(r => parseFloat(r.total_capital) || 0)
-      exposureChart.data.datasets[1].data = exp.map(r => parseFloat(r.active_exposure) || 0)
-      exposureChart.update()
+// ====== Helpers ======
+function formatCurrency(val) {
+  if (val == null || isNaN(val)) return '$0.00';
+  const num = parseFloat(val);
+  if (Math.abs(num) >= 1e6) return '$' + (num / 1e6).toFixed(2) + 'M';
+  if (Math.abs(num) >= 1e3) return '$' + (num / 1e3).toFixed(1) + 'K';
+  return '$' + num.toFixed(2);
+}
 
-      const healthJson = await fetch('/health').then(r => r.json())
-      document.getElementById('health').textContent = JSON.stringify(healthJson, null, 2)
+function formatPercent(val) {
+  if (val == null || isNaN(val)) return '0.00%';
+  return parseFloat(val).toFixed(2) + '%';
+}
 
-      const rolloutJson = await fetch('/rollout/state').then(r => r.json())
-      const alloc = rolloutJson.state?.allocation_percent ?? 'unknown'
-      document.getElementById('rollout_state').textContent = alloc
+function translateAction(action, reason) {
+  const r = (reason || '').toLowerCase();
+  const a = (action || '').toUpperCase();
 
-      const successes = (json.execution_success || []).length
-      const failures = (json.execution_failure || []).length
-      const rate = successes + failures > 0 ? (failures / (successes + failures)) : 0
-      document.getElementById('failure_rate').textContent = (rate * 100).toFixed(2) + '%'
+  if (a === 'AUTO_UP' || r.includes('auto_up') || r.includes('increase')) {
+    return { text: '📈 系統穩定：提高資金投入率', type: 'up' };
+  }
+  if (a === 'AUTO_DOWN' || r.includes('auto_down') || r.includes('decrease')) {
+    return { text: '🛡️ 自動防護機制啟動：降低投入資金', type: 'down' };
+  }
+  if (a === 'STOP' || r.includes('stop') || r.includes('emergency')) {
+    return { text: '🛑 緊急停止：已撤出所有資金', type: 'stop' };
+  }
+  if (a === 'SET' || r.includes('manual') || r.includes('set')) {
+    const pct = r.match(/(\d+)%/);
+    const pctText = pct ? pct[1] + '%' : '';
+    return { text: `✋ 手動調整：設定資金檔位 ${pctText}`, type: 'set' };
+  }
+  if (a === 'AUTO_ENABLED') {
+    return { text: '🤖 智能自動駕駛已開啟', type: 'up' };
+  }
+  if (a === 'AUTO_DISABLED') {
+    return { text: '🤖 智能自動駕駛已關閉', type: 'set' };
+  }
+  return { text: reason || action || '系統更新', type: 'set' };
+}
 
-      const settings = await fetch('/rollout/settings').then(r => r.json())
-      const enabled = settings.auto_enabled === 1 || settings.auto_enabled === '1' || settings.auto_enabled === true
-      const autoModeElement = document.getElementById('auto_mode')
-      autoModeElement.textContent = enabled ? 'ON' : 'OFF'
-      autoModeElement.className = enabled ? 'status-chip on' : 'status-chip off'
-      document.getElementById('last_auto').textContent = settings.last_decision || settings.last_reason || '-'
-      const percentage = typeof alloc === 'number' ? alloc : parseFloat(alloc) || 0
-      document.getElementById('rollout_percent').textContent = `${percentage}%`
-      rolloutProgress.style.width = `${Math.min(100, Math.max(0, percentage))}%`
-      lastRefreshLabel.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+function formatTime(ts) {
+  if (!ts) return '';
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return ts;
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return '剛剛';
+    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分鐘前';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小時前';
+    return d.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return ts;
+  }
+}
+
+// ====== Main Refresh ======
+async function refresh() {
+  try {
+    const symbol = 'fUSD';
+
+    // Fetch metrics
+    const metricsRes = await fetch(`/metrics?symbol=${symbol}`);
+    const metrics = await metricsRes.json();
+
+    // Fetch exposure
+    const expRes = await fetch(`/exposure?symbol=${symbol}`);
+    const expData = await expRes.json();
+
+    // Fetch rollout state
+    const rolloutRes = await fetch('/rollout/state');
+    const rollout = await rolloutRes.json();
+
+    // Fetch settings
+    const settingsRes = await fetch('/rollout/settings');
+    const settings = await settingsRes.json();
+
+    // Fetch health
+    const healthRes = await fetch('/health');
+    const health = await healthRes.json();
+
+    // ====== Process Data ======
+
+    // --- PnL & APY ---
+    const pnlSeries = (metrics.pnl || []).slice().reverse();
+    const apySeries = (metrics.apy || []).slice().reverse();
+
+    // Latest values
+    const latestPnl = pnlSeries.length > 0 ? parseFloat(pnlSeries[pnlSeries.length - 1].pnl) || 0 : 0;
+    const latestApy = apySeries.length > 0 ? parseFloat(apySeries[apySeries.length - 1].apy) || 0 : 0;
+
+    totalPnlEl.textContent = formatCurrency(latestPnl);
+    estApyEl.textContent = formatPercent(latestApy);
+
+    // --- Exposure ---
+    const exposureSeries = (expData.exposure || []).slice().reverse();
+    const latestExp = exposureSeries.length > 0 ? exposureSeries[exposureSeries.length - 1] : null;
+    const totalCap = latestExp ? parseFloat(latestExp.total_capital) || 0 : 0;
+    const activeExp = latestExp ? parseFloat(latestExp.active_exposure) || 0 : 0;
+
+    totalBalanceEl.textContent = formatCurrency(totalCap);
+    activeCapitalEl.textContent = formatCurrency(activeExp);
+
+    // --- Chart ---
+    // Use PnL for the main chart, and exposure for the second line
+    const chartLabels = pnlSeries.map(r => {
+      const d = new Date(r.measured_at);
+      return d.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+    });
+    const pnlData = pnlSeries.map(r => parseFloat(r.pnl) || 0);
+
+    // Align exposure data to same labels (use last known value)
+    const expMap = {};
+    exposureSeries.forEach(r => {
+      const key = new Date(r.measured_at).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
+      expMap[key] = parseFloat(r.active_exposure) || 0;
+    });
+    const expDataAligned = chartLabels.map(label => expMap[label] ?? null);
+
+    mainChart.data.labels = chartLabels;
+    mainChart.data.datasets[0].data = pnlData;
+    mainChart.data.datasets[1].data = expDataAligned;
+    mainChart.update('none');
+
+    // --- Rollout State ---
+    const state = rollout.state || {};
+    const alloc = parseFloat(state.allocation_percent) || 0;
+    allocPercentEl.textContent = alloc + '%';
+    allocBarEl.style.width = Math.min(100, Math.max(0, alloc)) + '%';
+
+    // Highlight active step button
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      const pct = parseInt(btn.dataset.percent);
+      btn.classList.toggle('active', pct === Math.round(alloc));
+    });
+
+    // --- Auto Toggle ---
+    const autoEnabled = settings.auto_enabled === 1 || settings.auto_enabled === '1' || settings.auto_enabled === true;
+    autoToggle.checked = autoEnabled;
+
+    // --- Last Decision ---
+    lastDecisionEl.textContent = settings.last_decision || settings.last_reason || '—';
+
+    // --- Health Status ---
+    const failureRate = health.failure_rate != null ? parseFloat(health.failure_rate) : 0;
+    const isHealthy = failureRate <= 0.05;
+
+    if (isHealthy) {
+      healthDot.className = 'w-2.5 h-2.5 rounded-full bg-[#22d65e] shadow-lg shadow-[#22d65e]/30';
+      healthText.textContent = '🟢 系統連線正常';
+      healthText.className = 'text-sm font-medium text-[#22d65e]';
+    } else {
+      healthDot.className = 'w-2.5 h-2.5 rounded-full bg-[#ef4444] shadow-lg shadow-[#ef4444]/30';
+      healthText.textContent = '🔴 系統異常 (錯誤率 ' + (failureRate * 100).toFixed(1) + '%)';
+      healthText.className = 'text-sm font-medium text-[#ef4444]';
     }
 
-    async function enableAuto() {
-      const res = await fetch('/rollout/auto/enable', { method: 'POST' })
-      if (!res.ok) alert('Failed enable')
-      refresh()
+    // --- Activity Timeline ---
+    const history = rollout.history || [];
+    if (history.length === 0) {
+      activityTimeline.innerHTML = '<div class="text-center text-slate-600 py-8 text-sm">尚無活動記錄</div>';
+    } else {
+      // Show latest 20 entries
+      const recent = history.slice(0, 20);
+      activityTimeline.innerHTML = recent.map(h => {
+        const translated = translateAction(h.action, h.reason);
+        const timeStr = formatTime(h.created_at || h.timestamp);
+        const pct = h.allocation_percent != null ? h.allocation_percent + '%' : '';
+        return `
+          <div class="timeline-item">
+            <div class="timeline-dot ${translated.type}"></div>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-sm font-medium text-slate-300">${translated.text}</p>
+                <p class="text-xs text-slate-600 mt-0.5">${pct ? '資金水位 ' + pct : ''}</p>
+              </div>
+              <span class="text-xs text-slate-600 whitespace-nowrap flex-shrink-0">${timeStr}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-    async function disableAuto() {
-      const res = await fetch('/rollout/auto/disable', { method: 'POST' })
-      if (!res.ok) alert('Failed disable')
-      refresh()
+
+  } catch (err) {
+    console.error('Refresh error:', err);
+    healthDot.className = 'w-2.5 h-2.5 rounded-full bg-[#ef4444]';
+    healthText.textContent = '🔴 連線異常';
+    healthText.className = 'text-sm font-medium text-[#ef4444]';
+  }
+}
+
+// ====== Actions ======
+async function setRollout(percent) {
+  try {
+    const res = await fetch('/rollout/set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ percent })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      if (err.error === 'failure_rate_too_high') {
+        alert('⚠️ 系統錯誤率過高 (' + (err.failure_rate * 100).toFixed(1) + '%)，無法提高資金水位。請先檢查系統狀態。');
+      } else {
+        alert('操作失敗：' + JSON.stringify(err));
+      }
     }
-    async function runAuto() {
-      const res = await fetch('/rollout/auto/run', { method: 'POST' })
-      const j = await res.json()
-      if (!res.ok) alert('Failed run: ' + JSON.stringify(j))
-      else alert('Auto run result: ' + JSON.stringify(j.result || j))
-      refresh()
+    refresh();
+  } catch (err) {
+    alert('網路錯誤：' + err.message);
+  }
+}
+
+async function emergencyStop() {
+  if (!confirm('🚨 確定要緊急撤出所有資金？此操作將立即把資金水位降至 0%。')) return;
+  try {
+    const res = await fetch('/rollout/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'manual emergency stop from dashboard' })
+    });
+    if (!res.ok) alert('操作失敗');
+    refresh();
+  } catch (err) {
+    alert('網路錯誤：' + err.message);
+  }
+}
+
+// Auto toggle
+autoToggle.addEventListener('change', async function() {
+  try {
+    if (this.checked) {
+      await fetch('/rollout/auto/enable', { method: 'POST' });
+    } else {
+      await fetch('/rollout/auto/disable', { method: 'POST' });
     }
-    async function setRollout(percent) {
-      const res = await fetch('/rollout/set', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ percent })
-      })
-      if (!res.ok) alert('Failed: ' + JSON.stringify(await res.json()))
-      refresh()
+    refresh();
+  } catch (err) {
+    alert('網路錯誤：' + err.message);
+    this.checked = !this.checked;
+  }
+});
+
+// ====== API Key Modal ======
+const apiModal = document.getElementById('apiModal');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const apiSecretInput = document.getElementById('apiSecretInput');
+const apiStatusLabel = document.getElementById('apiStatusLabel');
+const saveApiBtn = document.getElementById('saveApiBtn');
+const saveApiBtnText = document.getElementById('saveApiBtnText');
+
+function openApiModal() {
+  apiModal.classList.add('open');
+  // Pre-fill if already configured
+  checkApiStatus();
+}
+
+function closeApiModal() {
+  apiModal.classList.remove('open');
+  apiKeyInput.value = '';
+  apiSecretInput.value = '';
+}
+
+// Close modal on overlay click
+apiModal.addEventListener('click', function(e) {
+  if (e.target === this) closeApiModal();
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && apiModal.classList.contains('open')) closeApiModal();
+});
+
+async function saveApiKeys() {
+  const apiKey = apiKeyInput.value.trim();
+  const apiSecret = apiSecretInput.value.trim();
+
+  if (!apiKey || !apiSecret) {
+    showToast('請填寫 API Key 與 API Secret', 'error');
+    return;
+  }
+
+  saveApiBtn.disabled = true;
+  saveApiBtnText.textContent = '儲存中...';
+
+  try {
+    const res = await fetch('/api/settings/keys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey, api_secret: apiSecret })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errMsg = data.error || '儲存失敗';
+      showToast('❌ ' + errMsg, 'error');
+      return;
     }
-    async function stopRollout() {
-      const res = await fetch('/rollout/stop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'manual emergency stop' })
-      })
-      if (!res.ok) alert('Failed stop')
-      refresh()
+
+    showToast('✅ API 金鑰已安全儲存（' + data.api_key_preview + '）', 'success');
+    apiStatusLabel.textContent = '🔑 ' + data.api_key_preview;
+    closeApiModal();
+  } catch (err) {
+    showToast('❌ 網路錯誤：' + err.message, 'error');
+  } finally {
+    saveApiBtn.disabled = false;
+    saveApiBtnText.textContent = '安全儲存';
+  }
+}
+
+async function checkApiStatus() {
+  try {
+    const res = await fetch('/api/settings/keys/status');
+    const data = await res.json();
+    if (data.is_configured) {
+      apiStatusLabel.textContent = '🔑 ' + (data.api_key_preview || '已設定');
+      // Pre-fill the key field with a hint (not the actual key)
+      apiKeyInput.placeholder = '已設定 API (' + (data.api_key_preview || '') + ')，重新輸入可更新';
+    } else {
+      apiStatusLabel.textContent = 'API 授權設定';
     }
-    setInterval(refresh, 30000)
-    refresh()
-  </script>
+  } catch {
+    // Silently fail - the button keeps its default text
+  }
+}
+
+// ====== Toast System ======
+function showToast(message, type) {
+  type = type || 'success';
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  // Auto-remove after 4 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      toast.remove();
+    }, 500);
+  }, 4000);
+}
+
+// ====== Auto-refresh ======
+setInterval(refresh, 30000);
+refresh();
+</script>
 </body>
 </html>

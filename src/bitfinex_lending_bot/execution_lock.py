@@ -26,6 +26,8 @@ class GlobalExecutionLock:
     DEFAULT_TIMEOUT_SECONDS = 5.0
     DEFAULT_STALE_SECONDS = 30.0
     _thread_state = threading.local()
+    _process_locks: dict[str, threading.RLock] = {}
+    _process_locks_guard = threading.Lock()
 
     def __init__(self, database_path: Path, timeout_seconds: float | None = None, stale_seconds: float | None = None) -> None:
         self.lock_path = Path(str(database_path) + ".execution.lock")
@@ -42,6 +44,13 @@ class GlobalExecutionLock:
             if result.acquired:
                 self._release()
 
+    @classmethod
+    def _process_lock_for(cls, key: str) -> threading.RLock:
+        with cls._process_locks_guard:
+            if key not in cls._process_locks:
+                cls._process_locks[key] = threading.RLock()
+            return cls._process_locks[key]
+
     def _acquire(self, timeout_seconds: float | None = None) -> ExecutionLockResult:
         timeout_seconds = timeout_seconds if timeout_seconds is not None else self.timeout_seconds
         state = self._get_state()
@@ -56,45 +65,52 @@ class GlobalExecutionLock:
                 lock_path=self.lock_path,
             )
 
+        process_lock = self._process_lock_for(key)
+        lock_acquired = False
         start = time.monotonic()
-        while time.monotonic() - start <= timeout_seconds:
-            self.lock_path.parent.mkdir(parents=True, exist_ok=True)
-            fd = open(self.lock_path, "a+", encoding="utf-8")
-            try:
-                fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                fd.seek(0)
-                metadata = {
-                    "instance_id": self.instance_id,
-                    "timestamp": self._now(),
-                    "status": "ACQUIRED",
-                }
-                fd.truncate(0)
-                fd.write(json.dumps(metadata))
-                fd.flush()
-                os.fsync(fd.fileno())
-                state[key] = {"count": 1, "fd": fd}
-                return ExecutionLockResult(
-                    acquired=True,
-                    instance_id=self.instance_id,
-                    timestamp=metadata["timestamp"],
-                    status="ACQUIRED",
-                    lock_path=self.lock_path,
-                )
-            except BlockingIOError:
-                fd.close()
+        process_lock.acquire()
+        try:
+            while time.monotonic() - start <= timeout_seconds:
+                self.lock_path.parent.mkdir(parents=True, exist_ok=True)
+                fd = open(self.lock_path, "a+", encoding="utf-8")
+                try:
+                    fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    fd.seek(0)
+                    metadata = {
+                        "instance_id": self.instance_id,
+                        "timestamp": self._now(),
+                        "status": "ACQUIRED",
+                    }
+                    fd.truncate(0)
+                    fd.write(json.dumps(metadata))
+                    fd.flush()
+                    os.fsync(fd.fileno())
+                    state[key] = {"count": 1, "fd": fd, "process_lock": process_lock}
+                    lock_acquired = True
+                    return ExecutionLockResult(
+                        acquired=True,
+                        instance_id=self.instance_id,
+                        timestamp=metadata["timestamp"],
+                        status="ACQUIRED",
+                        lock_path=self.lock_path,
+                    )
+                except BlockingIOError:
+                    fd.close()
+                except Exception:
+                    fd.close()
+                    raise
                 time.sleep(0.1)
-                continue
-            except Exception:
-                fd.close()
-                raise
 
-        return ExecutionLockResult(
-            acquired=False,
-            instance_id=self.instance_id,
-            timestamp=self._now(),
-            status="FAILED",
-            lock_path=self.lock_path,
-        )
+            return ExecutionLockResult(
+                acquired=False,
+                instance_id=self.instance_id,
+                timestamp=self._now(),
+                status="FAILED",
+                lock_path=self.lock_path,
+            )
+        finally:
+            if not lock_acquired:
+                process_lock.release()
 
     def _release(self) -> None:
         state = self._get_state()
@@ -111,6 +127,9 @@ class GlobalExecutionLock:
                 fcntl.flock(fd.fileno(), fcntl.LOCK_UN)
             finally:
                 fd.close()
+        process_lock = guard.get("process_lock")
+        if process_lock is not None:
+            process_lock.release()
         del state[key]
 
     def _get_state(self) -> dict[str, dict[str, object]]:

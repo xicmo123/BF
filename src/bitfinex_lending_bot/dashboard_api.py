@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import Body
 
 from .config import load_settings
+from .security import encrypt_secret
 from .storage import SQLiteRepository
 from .notifier import TelegramNotifier
 
@@ -30,8 +31,17 @@ def metrics(symbol: str | None = None, limit: int = 100):
     symbol = symbol or settings.default_currency
     apy = repo.get_apy_series(symbol, limit)
     pnl = repo.get_pnl_series(symbol, limit)
-    metrics = repo.get_metrics("execution_success", limit)
-    return JSONResponse({"symbol": symbol, "apy": apy, "pnl": pnl, "metrics": metrics})
+    execution_success = repo.get_metrics("execution_success", limit)
+    execution_failure = repo.get_metrics("execution_failure", limit)
+    api_failures = repo.get_metrics("api_failure", limit)
+    return JSONResponse({
+        "symbol": symbol,
+        "apy": apy,
+        "pnl": pnl,
+        "execution_success": execution_success,
+        "execution_failure": execution_failure,
+        "api_failures": api_failures,
+    })
 
 
 @app.get("/health")
@@ -137,6 +147,59 @@ def rollout_auto_disable():
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
 
+
+
+@app.post("/api/settings/keys")
+def save_api_keys(payload: dict = Body(...)):
+    """Save (or update) Bitfinex API credentials with encrypted secret."""
+    user_id = (payload.get("user_id") or "default_user").strip()
+    api_key = (payload.get("api_key") or "").strip()
+    api_secret = (payload.get("api_secret") or "").strip()
+    if not api_key or not api_secret:
+        return JSONResponse({"error": "api_key and api_secret are required"}, status_code=400)
+
+    enc_key = settings.encryption_key
+    if not enc_key:
+        return JSONResponse({"error": "server encryption key not configured"}, status_code=500)
+
+    try:
+        encrypted_secret = encrypt_secret(api_secret, enc_key)
+        repo.save_api_credentials(user_id, api_key, encrypted_secret)
+        return JSONResponse({"ok": True, "api_key_preview": api_key[:4] + "***", "user_id": user_id})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/settings/keys/status")
+def api_keys_status(user_id: str | None = None):
+    """Return whether API credentials are configured for a specific user (NEVER expose the full secret)."""
+    uid = user_id or "default_user"
+    creds = repo.get_api_credentials(uid)
+    if creds is None:
+        return JSONResponse({"is_configured": False, "api_key_preview": None, "user_id": uid})
+    raw_key = creds.get("api_key", "")
+    preview = (raw_key[:4] + "***") if len(raw_key) > 4 else "***"
+    return JSONResponse({
+        "is_configured": True,
+        "api_key_preview": preview,
+        "user_id": uid,
+    })
+
+
+@app.get("/api/settings/keys/users")
+def list_api_users():
+    """List all users with configured API credentials (NEVER expose secrets)."""
+    all_creds = repo.get_all_api_credentials()
+    users = []
+    for cred in all_creds:
+        raw_key = cred.get("api_key", "")
+        preview = (raw_key[:4] + "***") if len(raw_key) > 4 else "***"
+        users.append({
+            "user_id": cred.get("user_id", ""),
+            "api_key_preview": preview,
+            "updated_at": cred.get("updated_at", ""),
+        })
+    return JSONResponse({"users": users, "count": len(users)})
 
 
 @app.get("/exposure")
