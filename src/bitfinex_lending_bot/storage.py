@@ -558,6 +558,15 @@ class SQLiteRepository:
             ).fetchall()
         return [_row_to_dict(row) for row in rows]
 
+    def latest_wallet_by_type_and_currency(self, wallet_type: str, currency: str) -> dict[str, str] | None:
+        """Get the latest wallet snapshot matching specific wallet_type and currency."""
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM wallets WHERE wallet_type = ? AND currency = ? ORDER BY captured_at DESC, id DESC LIMIT 1",
+                (wallet_type, currency),
+            ).fetchone()
+        return _row_to_dict(row) if row is not None else None
+
     def latest_offers(self, limit: int = 50) -> list[dict[str, str]]:
         with self._connect() as connection:
             rows = connection.execute(

@@ -398,39 +398,39 @@
     <!-- Hero Section: Core Assets -->
     <section class="mb-8">
       <div class="glass-card-static p-6 sm:p-8">
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 xl:gap-6">
           <!-- Total PnL -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">總收益</p>
-            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neon num" id="totalPnl">$0.00</p>
+            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-neon num truncate" id="totalPnl">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">累計盈虧</p>
           </div>
 
           <!-- Est. APY -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">預估年化</p>
-            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-purple-accent num" id="estApy">0.00%</p>
+            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-purple-accent num truncate" id="estApy">0.00%</p>
             <p class="text-xs text-slate-600 mt-1">Est. APY</p>
           </div>
 
           <!-- Total Balance -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">總資金</p>
-            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white num" id="totalBalance">$0.00</p>
+            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-white num truncate" id="totalBalance">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">Total Balance</p>
           </div>
 
           <!-- Active Capital -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">運作資金</p>
-            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white num" id="activeCapital">$0.00</p>
+            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-white num truncate" id="activeCapital">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">Active Capital</p>
           </div>
 
           <!-- Idle Cash -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">閒置資金</p>
-            <p class="hero-metric text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sky-400 num" id="idleCash">$0.00</p>
+            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-sky-400 num truncate" id="idleCash">$0.00</p>
             <p class="text-xs text-slate-600 mt-1">未參與放貸之資金</p>
           </div>
         </div>
@@ -802,7 +802,7 @@ function formatTime(ts) {
 // ====== Main Refresh ======
 async function refresh() {
   try {
-    const symbol = 'fUSD';
+    const symbol = 'fUSDT';
 
     // Fetch metrics
     const metricsRes = await fetch(`/metrics?symbol=${symbol}`);

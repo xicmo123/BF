@@ -37,7 +37,6 @@ def metrics(symbol: str | None = None, limit: int = 100):
 
     # Latest risk decision for idle_cash + exposure snapshot
     latest_risk = repo.latest_risk_decision()
-    latest_wallet = repo.latest_wallets(limit=1)
     idle_cash = None
     active_exposure_val = None
     total_capital_val = None
@@ -47,24 +46,24 @@ def metrics(symbol: str | None = None, limit: int = 100):
         total_capital_val = latest_risk.get("total_capital")
 
     # Also compute from latest wallets for live view
-    # Idle Cash should be the available balance from funding wallet (type='funding', currency='fUSD')
+    # Idle Cash must be exactly equal to the latest wallet snapshot where type='funding' 
+    # and currency matches DEFAULT_CURRENCY, using only the 'available_balance' field (NOT 'balance')
+    # Note: API uses 'fUSD' but database stores 'USD' in wallets table, so we need to normalize
     open_offers_total = None
     wallet_balance = None
     wallet_available = None
     idle_cash_from_wallet = None
     
-    if latest_wallet:
-        # Filter for funding wallet with fUSD currency
-        funding_wallet = None
-        for wallet in latest_wallet:
-            if wallet.get("wallet_type") == "funding" and wallet.get("currency") == "fUSD":
-                funding_wallet = wallet
-                break
-        
-        if funding_wallet:
-            wallet_balance = funding_wallet.get("balance")
-            wallet_available = funding_wallet.get("available_balance")
-            idle_cash_from_wallet = wallet_available
+    # Normalize currency: strip 'f' prefix (e.g., 'fUSD' -> 'USD') for database query
+    wallet_currency = symbol[1:] if symbol.startswith('f') else symbol
+    
+    # Query the latest funding wallet with the specific currency using SQL filtering
+    funding_wallet = repo.latest_wallet_by_type_and_currency("funding", wallet_currency)
+    
+    if funding_wallet:
+        wallet_balance = funding_wallet.get("balance")
+        wallet_available = funding_wallet.get("available_balance")
+        idle_cash_from_wallet = wallet_available
 
     return JSONResponse({
         "symbol": symbol,
