@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal, InvalidOperation
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -46,20 +48,72 @@ def metrics(symbol: str | None = None, limit: int = 100):
         total_capital_val = latest_risk.get("total_capital")
 
     # Also compute from latest wallets for live view
-    # Idle Cash must be exactly equal to the latest wallet snapshot where type='funding' 
-    # and currency matches DEFAULT_CURRENCY, using only the 'available_balance' field (NOT 'balance')
-    # Note: API uses 'fUSD' but database stores 'USD' in wallets table, so we need to normalize
+    # Query both USD and UST idle cash independently
     open_offers_total = None
     wallet_balance = None
     wallet_available = None
     idle_cash_from_wallet = None
+
+    def _decimal_or_zero(value: object) -> Decimal:
+        if value is None or value == "":
+            return Decimal("0")
+        try:
+            return Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            return Decimal("0")
+
+    def _wallet_amount(wallet: dict[str, str] | None, key: str) -> Decimal | None:
+        if wallet is None or key not in wallet:
+            return None
+        return _decimal_or_zero(wallet.get(key))
+
+    def _wallet_provided(wallet: dict[str, str] | None, holding_offers: Decimal) -> Decimal | None:
+        """Return provided amount from wallet column if available, otherwise infer it.
+
+        Some databases may already have Bitfinex wallet snapshot columns such as
+        `holding_offers` and `provided`. The repository returns all columns from
+        the actual wallets table, so use them when present. For older schemas,
+        approximate provided as balance - available_balance - holding_offers.
+        """
+        explicit_provided = _wallet_amount(wallet, "provided")
+        if explicit_provided is not None:
+            return explicit_provided
+        if wallet is None:
+            return None
+        inferred = (
+            _decimal_or_zero(wallet.get("balance"))
+            - _decimal_or_zero(wallet.get("available_balance"))
+            - holding_offers
+        )
+        return max(inferred, Decimal("0"))
     
-    # Normalize currency: strip 'f' prefix (e.g., 'fUSD' -> 'USD') for database query
+    # Query USD funding wallet
+    funding_wallet_usd = repo.latest_wallet_by_type_and_currency("funding", "USD")
+    idle_usd = None
+    if funding_wallet_usd:
+        idle_usd = funding_wallet_usd.get("available_balance")
+    
+    # Query UST (USDT) funding wallet
+    funding_wallet_ust = repo.latest_wallet_by_type_and_currency("funding", "UST")
+    idle_usdt = None
+    if funding_wallet_ust:
+        idle_usdt = funding_wallet_ust.get("available_balance")
+    
+    # Query active offers/provided totals for USD and UST.
+    # Prefer wallet snapshot columns when present; otherwise fall back to
+    # active funding_offers rows for offers and infer provided from wallet totals.
+    offers_usd = _wallet_amount(funding_wallet_usd, "holding_offers")
+    if offers_usd is None:
+        offers_usd = repo.get_active_offers_total_by_currency("fUSD")
+    offers_usdt = _wallet_amount(funding_wallet_ust, "holding_offers")
+    if offers_usdt is None:
+        offers_usdt = repo.get_active_offers_total_by_currency("fUST")
+    provided_usd = _wallet_provided(funding_wallet_usd, offers_usd)
+    provided_usdt = _wallet_provided(funding_wallet_ust, offers_usdt)
+    
+    # For backward compatibility, also compute the original single currency value
     wallet_currency = symbol[1:] if symbol.startswith('f') else symbol
-    
-    # Query the latest funding wallet with the specific currency using SQL filtering
     funding_wallet = repo.latest_wallet_by_type_and_currency("funding", wallet_currency)
-    
     if funding_wallet:
         wallet_balance = funding_wallet.get("balance")
         wallet_available = funding_wallet.get("available_balance")
@@ -73,6 +127,12 @@ def metrics(symbol: str | None = None, limit: int = 100):
         "execution_failure": execution_failure,
         "api_failures": api_failures,
         "idle_cash": idle_cash_from_wallet,  # Use funding wallet available balance
+        "idle_usd": idle_usd,
+        "idle_usdt": idle_usdt,
+        "offers_usd": str(offers_usd),
+        "offers_usdt": str(offers_usdt),
+        "provided_usd": str(provided_usd or Decimal("0")),
+        "provided_usdt": str(provided_usdt or Decimal("0")),
         "active_exposure": active_exposure_val,
         "total_capital": total_capital_val,
         "wallet_balance": wallet_balance,
@@ -243,3 +303,10 @@ def exposure(symbol: str | None = None, limit: int = 100):
     symbol = symbol or settings.default_currency
     data = repo.get_exposure_history(symbol, limit)
     return JSONResponse({"symbol": symbol, "exposure": data})
+
+
+@app.get("/api/logs")
+def api_logs(limit: int = 20):
+    """Get latest system events/logs from the events table."""
+    logs = repo.latest_events(limit)
+    return JSONResponse({"logs": logs})

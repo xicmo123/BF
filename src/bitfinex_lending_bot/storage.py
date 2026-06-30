@@ -575,6 +575,15 @@ class SQLiteRepository:
             ).fetchall()
         return [_row_to_dict(row) for row in rows]
 
+    def get_active_offers_total_by_currency(self, currency: str) -> Decimal:
+        """Get total amount of active offers for a specific currency."""
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT SUM(amount) as total FROM funding_offers WHERE symbol = ? AND status IN ('ACTIVE', 'PAPER_ACTIVE', 'MOCK_ACTIVE')",
+                (currency,),
+            ).fetchone()
+        return Decimal(str(row["total"] if row and row["total"] else 0))
+
     def latest_events(self, limit: int = 50) -> list[dict[str, str]]:
         with self._connect() as connection:
             rows = connection.execute(

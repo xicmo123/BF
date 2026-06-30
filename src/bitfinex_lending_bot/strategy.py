@@ -133,7 +133,7 @@ class AdvancedLendingStrategy(LendingStrategy):
             # Check if offer is stale (older than cutoff) AND rate > lowest ask
             if update_time < stale_cutoff and offer.rate > lowest_ask:
                 cancel_ids.append(offer.id)
-                reasons.append(f"Cancel stale offer {offer.id} (rate={offer.rate} > ask={lowest_ask})")
+                reasons.append(f"❌ 取消過期單 {offer.id} (掛單利率 {offer.rate} > 目前市場最低要價 {lowest_ask})")
 
         # ====== B) Check available balance ======
         if available < self._min_available:
@@ -159,6 +159,8 @@ class AdvancedLendingStrategy(LendingStrategy):
             rate = lowest_ask - Decimal("0.000001")
             if rate <= Decimal("0"):
                 rate = lowest_ask
+            # Quantize rate to 6 decimal places to avoid Bitfinex 500 error
+            rate = rate.quantize(Decimal("0.000001"))
 
             hidden = available >= self._hidden_threshold_usd
             offer = CreateFundingOfferRequest(
@@ -170,15 +172,15 @@ class AdvancedLendingStrategy(LendingStrategy):
             )
             create_offers.append(offer)
             reasons.append(
-                f"High-speed: {available} @ {rate} period={period}d"
-                f"{' (hidden)' if hidden else ''}"
+                f"⚡ 高速模式：投入資金 {available} @ 利率 {rate} 放貸天數={period}天"
+                f"{' (隱藏單)' if hidden else ''}"
             )
 
         else:  # high_yield mode — 3-tier ladder
             # Tier 1: 20% at Lowest Ask + 2% (safe base)
             tier1_pct = Decimal("0.20")
             tier1_amount = (available * tier1_pct).quantize(Decimal("0.01"))
-            tier1_rate = lowest_ask * Decimal("1.02")  # +2%
+            tier1_rate = (lowest_ask * Decimal("1.02")).quantize(Decimal("0.000001"))  # +2%
             if tier1_amount > 0:
                 hidden1 = tier1_amount >= self._hidden_threshold_usd
                 create_offers.append(CreateFundingOfferRequest(
@@ -188,12 +190,12 @@ class AdvancedLendingStrategy(LendingStrategy):
                     period=period,
                     hidden=hidden1,
                 ))
-                reasons.append(f"Tier1(20%): {tier1_amount} @ {tier1_rate}")
+                reasons.append(f"📈 階梯第一檔(20%資金): {tier1_amount} @ 利率 {tier1_rate}")
 
             # Tier 2: 30% at Lowest Ask * 1.5 (placeholder for 7-day high avg)
             tier2_pct = Decimal("0.30")
             tier2_amount = (available * tier2_pct).quantize(Decimal("0.01"))
-            tier2_rate = lowest_ask * Decimal("1.5")  # placeholder: 1.5x lowest ask
+            tier2_rate = (lowest_ask * Decimal("1.5")).quantize(Decimal("0.000001"))  # placeholder: 1.5x lowest ask
             if tier2_amount > 0:
                 hidden2 = tier2_amount >= self._hidden_threshold_usd
                 create_offers.append(CreateFundingOfferRequest(
@@ -203,13 +205,13 @@ class AdvancedLendingStrategy(LendingStrategy):
                     period=period,
                     hidden=hidden2,
                 ))
-                reasons.append(f"Tier2(30%): {tier2_amount} @ {tier2_rate}")
+                reasons.append(f"📈 階梯第二檔(30%資金): {tier2_amount} @ 利率 {tier2_rate}")
 
             # Tier 3: 50% at extreme high rate (50% APY sniper)
             tier3_pct = Decimal("0.50")
             tier3_amount = (available * tier3_pct).quantize(Decimal("0.01"))
             # 50% APY ≈ 0.00137 daily rate (50 / 365 / 100)
-            tier3_rate = max(lowest_ask * Decimal("3"), Decimal("0.00137"))
+            tier3_rate = max(lowest_ask * Decimal("3"), Decimal("0.00137")).quantize(Decimal("0.000001"))
             if tier3_amount > 0:
                 hidden3 = tier3_amount >= self._hidden_threshold_usd
                 create_offers.append(CreateFundingOfferRequest(
@@ -219,7 +221,7 @@ class AdvancedLendingStrategy(LendingStrategy):
                     period=period,
                     hidden=hidden3,
                 ))
-                reasons.append(f"Tier3(50%): {tier3_amount} @ {tier3_rate} (sniper)")
+                reasons.append(f"🎯  sniper狙擊第三檔(50%資金): {tier3_amount} @ 利率 {tier3_rate} (極高回報單)")
 
         return StrategyDecision(
             create_offers=tuple(create_offers),

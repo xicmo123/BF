@@ -430,8 +430,10 @@
           <!-- Idle Cash -->
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1">閒置資金</p>
-            <p class="hero-metric text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-extrabold text-sky-400 num truncate" id="idleCash">$0.00</p>
-            <p class="text-xs text-slate-600 mt-1">未參與放貸之資金</p>
+            <p class="hero-metric text-lg sm:text-xl lg:text-xl xl:text-2xl font-extrabold text-sky-400 num truncate" id="idleCashUSD">$0.00</p>
+            <p class="text-xs text-slate-500 mt-0.5">USD</p>
+            <p class="hero-metric text-lg sm:text-xl lg:text-xl xl:text-2xl font-extrabold text-purple-accent num truncate mt-1" id="idleCashUSDT">$0.00</p>
+            <p class="text-xs text-slate-500 mt-0.5">USDT</p>
           </div>
         </div>
       </div>
@@ -593,6 +595,16 @@
         </div>
       </div>
     </section>
+
+    <!-- Bot Execution Logs -->
+    <section>
+      <div class="glass-card p-6">
+        <h2 class="text-lg font-bold text-white mb-4">🤖 機器人執行與放貸日誌</h2>
+        <div id="botLogs" class="timeline">
+          <div class="text-center text-slate-600 py-8 text-sm">載入中...</div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -729,7 +741,8 @@ const totalPnlEl = document.getElementById('totalPnl');
 const estApyEl = document.getElementById('estApy');
 const totalBalanceEl = document.getElementById('totalBalance');
 const activeCapitalEl = document.getElementById('activeCapital');
-const idleCashEl = document.getElementById('idleCash');
+const idleCashUSDEl = document.getElementById('idleCashUSD');
+const idleCashUSDTEl = document.getElementById('idleCashUSDT');
 const allocPercentEl = document.getElementById('allocPercent');
 const allocBarEl = document.getElementById('allocBar');
 const autoToggle = document.getElementById('autoToggle');
@@ -737,6 +750,7 @@ const lastDecisionEl = document.getElementById('lastDecision');
 const healthDot = document.getElementById('healthDot');
 const healthText = document.getElementById('healthText');
 const activityTimeline = document.getElementById('activityTimeline');
+const botLogsEl = document.getElementById('botLogs');
 const allocOpenOffersEl = document.getElementById('allocOpenOffers');
 const allocActiveLendingEl = document.getElementById('allocActiveLending');
 const allocIdleBalanceEl = document.getElementById('allocIdleBalance');
@@ -802,7 +816,7 @@ function formatTime(ts) {
 // ====== Main Refresh ======
 async function refresh() {
   try {
-    const symbol = 'fUSDT';
+    const symbol = 'fUSD';
 
     // Fetch metrics
     const metricsRes = await fetch(`/metrics?symbol=${symbol}`);
@@ -848,10 +862,13 @@ async function refresh() {
 
     // --- Idle Cash & Asset Allocation (from /metrics) ---
     const idleCash = metrics.idle_cash != null ? parseFloat(metrics.idle_cash) : 0;
+    const idleUSD = metrics.idle_usd != null ? parseFloat(metrics.idle_usd) : 0;
+    const idleUSDT = metrics.idle_usdt != null ? parseFloat(metrics.idle_usdt) : 0;
     const walletBalance = metrics.wallet_balance != null ? parseFloat(metrics.wallet_balance) : 0;
     const walletAvailable = metrics.wallet_available != null ? parseFloat(metrics.wallet_available) : 0;
 
-    idleCashEl.textContent = formatCurrency(idleCash);
+    idleCashUSDEl.textContent = formatCurrency(idleUSD);
+    idleCashUSDTEl.textContent = formatCurrency(idleUSDT);
 
     // Compute allocation breakdown
     // openOffers = active_exposure from exposure history (amount in open offers)
@@ -955,6 +972,39 @@ async function refresh() {
               <div>
                 <p class="text-sm font-medium text-slate-300">${translated.text}</p>
                 <p class="text-xs text-slate-600 mt-0.5">${pct ? '資金水位 ' + pct : ''}</p>
+              </div>
+              <span class="text-xs text-slate-600 whitespace-nowrap flex-shrink-0">${timeStr}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- Bot Execution Logs ---
+    const logsRes = await fetch('/api/logs');
+    const logsData = await logsRes.json();
+    const logs = logsData.logs || [];
+    if (logs.length === 0) {
+      botLogsEl.innerHTML = '<div class="text-center text-slate-600 py-8 text-sm">尚無執行日誌</div>';
+    } else {
+      botLogsEl.innerHTML = logs.map(log => {
+        const message = log.message || '';
+        const level = log.level || 'INFO';
+        const timeStr = formatTime(log.created_at);
+        
+        // Highlight funding offer events
+        const isFundingOffer = message.toLowerCase().includes('created') || message.toLowerCase().includes('funding offer');
+        const messageClass = isFundingOffer ? 'text-[#22d65e]' : 'text-slate-300';
+        const dotClass = isFundingOffer ? 'up' : 'set';
+        const prefix = isFundingOffer ? '🟢 ' : '';
+        
+        return `
+          <div class="timeline-item">
+            <div class="timeline-dot ${dotClass}"></div>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-sm font-medium ${messageClass}">${prefix}${message}</p>
+                <p class="text-xs text-slate-600 mt-0.5">${level}</p>
               </div>
               <span class="text-xs text-slate-600 whitespace-nowrap flex-shrink-0">${timeStr}</span>
             </div>
