@@ -44,12 +44,6 @@ class LendingBot:
         symbol = symbol or self._settings.default_currency
         self._repository.initialize()
         self._recover_pending_state()
-        # run ops startup reconcile if available
-        try:
-            if getattr(self, "_ops", None):
-                self._ops.startup_reconcile(self._client, symbol)
-        except Exception:
-            pass
         logger.info("Starting lending bot cycle symbol={}", symbol)
         try:
             with self._execution_lock.acquire() as lock_result:
@@ -89,10 +83,21 @@ class LendingBot:
                     open_offers = self._client.get_funding_offers(symbol)
                     logger.info("Funding offers read successfully offers={}", len(open_offers))
                 except BitfinexClientError as exc:
-                    self._risk_manager.trigger_kill_switch(f"read_funding_book_or_wallets_or_offers failed: {exc}")
+                    # Use failure counter — transient read 500s should NOT immediately
+                    # trigger the kill switch. Only persistent read failures (>= threshold)
+                    # escalate to kill switch, same logic as create failures.
+                    current_failures = self._repository.increment_failure_count()
+                    threshold = self._settings.kill_switch_failure_threshold
+                    failure_reason = f"read_funding_book_or_wallets_or_offers failed: {exc}"
+                    logger.warning(
+                        "Read API failure (consecutive failures: {}/{}): {}",
+                        current_failures, threshold, exc,
+                    )
+                    self._record_event("WARNING", f"{failure_reason} (consecutive: {current_failures}/{threshold})")
+                    if current_failures >= threshold:
+                        self._risk_manager.trigger_kill_switch(failure_reason)
                     risk_decision = self._risk_manager.safe_idle_decision(str(exc))
                     self._record_risk_decision(risk_decision)
-                    self._record_event("ERROR", f"API failure fallback to safe idle: {exc}")
                     logger.error("API failure fallback to safe idle: {}", exc)
                     try:
                         if getattr(self, "_ops", None):
@@ -100,6 +105,7 @@ class LendingBot:
                     except Exception:
                         pass
                     return
+
 
                 try:
                     self._repository.save_funding_book(symbol, funding_book)

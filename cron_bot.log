@@ -3224,3 +3224,837 @@
 2026-06-30 03:25:12.514 | WARNING  | bitfinex_lending_bot.bot:run_once:188 - Funding offer execution skipped by risk manager
 2026-06-30 03:25:12.518 | INFO     | bitfinex_lending_bot.bot:run_all_users:566 - [user=default_user] Bot execution cycle completed
 2026-06-30 03:25:12.520 | INFO     | bitfinex_lending_bot.bot:run_all_users:574 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:00:12.565 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:387 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:00:12.565 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:388 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:00:12.568 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:408 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:00:12.568 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:00:12.569 | INFO     | bitfinex_lending_bot.bot:run_all_users:564 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:00:12.909 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:00:12.913 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 05:00:12.913 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 05:00:13.189 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 05:00:13.190 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 05:00:13.463 | INFO     | bitfinex_lending_bot.bot:run_once:86 - Wallet read successfully wallets=7
+2026-06-30 05:00:13.464 | INFO     | bitfinex_lending_bot.bot:run_once:88 - Reading funding offers
+2026-06-30 05:00:13.934 | INFO     | bitfinex_lending_bot.bot:run_once:90 - Funding offers read successfully offers=0
+2026-06-30 05:00:13.950 | INFO     | bitfinex_lending_bot.bot:run_once:121 - Calling strategy advanced
+2026-06-30 05:00:13.951 | INFO     | bitfinex_lending_bot.bot:run_once:128 - Strategy advanced decision: ⚠️ 第一檔(20%資金)金額 10.00 低於最低門檻 150，合併至下一檔 | ⚠️ 第二檔(30%資金)金額 25.00 低於最低門檻 150，合併至下一檔 | ⚠️ 總金額 50.00 低於最低門檻 150，跳過下單
+2026-06-30 05:00:13.957 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0E+8 idle_cash=204.9355234 daily_lending=902.53454433
+2026-06-30 05:00:13.992 | INFO     | bitfinex_lending_bot.bot:run_once:276 - Lending bot cycle completed
+2026-06-30 05:00:13.993 | INFO     | bitfinex_lending_bot.bot:run_all_users:566 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:00:13.993 | INFO     | bitfinex_lending_bot.bot:run_all_users:574 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:05:23.797 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:387 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:05:23.798 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:388 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:05:23.800 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:408 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:05:23.801 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:05:23.801 | INFO     | bitfinex_lending_bot.bot:run_all_users:564 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:05:24.078 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:05:24.082 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 05:05:24.083 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 05:05:24.406 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 05:05:24.407 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 05:05:24.673 | INFO     | bitfinex_lending_bot.bot:run_once:86 - Wallet read successfully wallets=7
+2026-06-30 05:05:24.674 | INFO     | bitfinex_lending_bot.bot:run_once:88 - Reading funding offers
+2026-06-30 05:05:24.939 | INFO     | bitfinex_lending_bot.bot:run_once:90 - Funding offers read successfully offers=0
+2026-06-30 05:05:24.954 | INFO     | bitfinex_lending_bot.bot:run_once:121 - Calling strategy advanced
+2026-06-30 05:05:24.955 | INFO     | bitfinex_lending_bot.bot:run_once:128 - Strategy advanced decision: ⚠️ 第一檔(20%資金)金額 30.00 低於最低門檻 150，合併至下一檔 | ⚠️ 第二檔(30%資金)金額 75.00 低於最低門檻 150，合併至下一檔 | 📈 狙擊第三檔(50%資金): 150.00 @ 利率 0.001370
+2026-06-30 05:05:24.961 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0.01294069928903619049892673435 idle_cash=54.9355234 daily_lending=902.53454433
+2026-06-30 05:05:25.233 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/w/funding/offer/submit attempt=1/3 retrying in 1.0s
+2026-06-30 05:05:26.878 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/w/funding/offer/submit attempt=2/3 retrying in 2.0s
+2026-06-30 05:05:29.538 | WARNING  | bitfinex_lending_bot.bot:run_once:223 - Create funding offer failed (consecutive failures: 1/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 05:05:29.544 | INFO     | bitfinex_lending_bot.bot:run_once:237 - Failure count 1/3 below threshold, safe idle this round
+2026-06-30 05:05:29.545 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=SAFE reason=create_funding_offer failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:05:29.552 | INFO     | bitfinex_lending_bot.bot:run_all_users:566 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:05:29.553 | INFO     | bitfinex_lending_bot.bot:run_all_users:574 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:10:21.097 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:387 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:10:21.098 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:388 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:10:21.100 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:408 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:10:21.101 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:10:21.101 | INFO     | bitfinex_lending_bot.bot:run_all_users:564 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:10:21.425 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/funding/offers/fUST attempt=1/3 retrying in 1.0s
+2026-06-30 05:10:22.690 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/funding/offers/fUST attempt=2/3 retrying in 2.0s
+2026-06-30 05:10:24.952 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:10:24.957 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 05:10:24.957 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 05:10:25.263 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 05:10:25.263 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 05:10:25.521 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s
+2026-06-30 05:10:26.796 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s
+2026-06-30 05:10:29.057 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:10:29.063 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:10:29.073 | ERROR    | bitfinex_lending_bot.bot:run_once:96 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:10:29.078 | INFO     | bitfinex_lending_bot.bot:run_all_users:566 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:10:29.079 | INFO     | bitfinex_lending_bot.bot:run_all_users:574 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:15:10.458 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:387 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:15:10.458 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:388 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:15:10.461 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:408 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:15:10.461 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:15:10.461 | INFO     | bitfinex_lending_bot.bot:run_all_users:564 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:15:10.742 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/funding/offers/fUST attempt=1/3 retrying in 1.0s
+2026-06-30 05:15:12.001 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/funding/offers/fUST attempt=2/3 retrying in 2.0s
+2026-06-30 05:15:14.283 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:15:14.287 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 05:15:14.288 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 05:15:14.592 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 05:15:14.593 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 05:15:14.846 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s
+2026-06-30 05:15:16.111 | WARNING  | bitfinex_lending_bot.client:_request:149 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s
+2026-06-30 05:15:18.369 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:15:18.374 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:15:18.385 | ERROR    | bitfinex_lending_bot.bot:run_once:96 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:15:18.391 | INFO     | bitfinex_lending_bot.bot:run_all_users:566 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:15:18.392 | INFO     | bitfinex_lending_bot.bot:run_all_users:574 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:20:11.216 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:20:11.217 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:20:11.219 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:20:11.219 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:20:11.220 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:20:11.233 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:20:11.239 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:20:11.239 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:20:11.553 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:20:11.553 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:20:11.811 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:20:11.812 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:20:13.456 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:20:13.457 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:20:15.715 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:20:15.721 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 2/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:20:15.726 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=SAFE reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:20:15.730 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:20:15.736 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:20:15.737 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:25:11.204 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:25:11.204 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:25:11.206 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:25:11.207 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:25:11.207 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:25:11.210 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:25:11.214 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:25:11.214 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:25:11.856 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:25:11.857 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:25:12.127 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:25:12.128 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:25:13.385 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:25:13.385 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:25:15.647 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:25:15.653 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 3/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:25:15.658 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:25:15.662 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:25:15.667 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:25:15.672 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:25:15.673 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:30:00.980 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:30:00.981 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:30:00.983 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:30:00.984 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:30:00.985 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:30:00.987 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:30:00.992 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:30:00.992 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:30:01.283 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:30:01.284 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:30:01.540 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:30:01.540 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:30:02.795 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:30:02.796 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:30:05.063 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:30:05.070 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 4/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:30:05.075 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:30:05.081 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:30:05.086 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:30:05.093 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:30:05.093 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:35:11.219 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:35:11.220 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:35:11.222 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:35:11.222 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:35:11.223 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:35:11.225 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:35:11.229 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:35:11.229 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:35:11.550 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:35:11.551 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:35:11.810 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:35:11.811 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:35:13.079 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:35:13.080 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:35:15.335 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:35:15.342 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 5/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:35:15.346 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:35:15.351 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:35:15.356 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:35:15.362 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:35:15.363 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:40:11.209 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:40:11.209 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:40:11.211 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:40:11.212 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:40:11.212 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:40:11.215 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:40:11.219 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:40:11.219 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:40:11.505 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:40:11.506 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:40:11.769 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:40:11.769 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:40:13.030 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:40:13.030 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:40:15.295 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:40:15.302 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 6/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:40:15.307 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:40:15.312 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:40:15.318 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:40:15.324 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:40:15.325 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:45:10.460 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:45:10.461 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:45:10.463 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:45:10.463 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:45:10.464 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:45:10.466 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:45:10.471 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:45:10.472 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:45:10.758 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:45:10.758 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:45:11.016 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:45:11.016 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:45:12.281 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:45:12.281 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:45:14.540 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:45:14.545 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 7/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:45:14.550 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:45:14.554 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:45:14.559 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:45:14.564 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:45:14.565 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:50:11.237 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:50:11.238 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:50:11.241 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:50:11.242 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:50:11.243 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:50:11.245 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:50:11.250 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:50:11.250 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:50:11.567 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:50:11.568 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:50:11.832 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:50:11.833 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:50:13.094 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:50:13.095 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:50:15.354 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:50:15.361 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 8/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:50:15.366 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:50:15.371 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:50:15.376 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:50:15.382 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:50:15.383 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 05:55:11.271 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 05:55:11.272 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 05:55:11.275 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 05:55:11.276 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 05:55:11.276 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 05:55:11.279 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 05:55:11.283 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 05:55:11.283 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 05:55:11.626 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 05:55:11.627 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 05:55:11.887 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:55:11.888 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:55:13.148 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:55:13.148 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:55:15.420 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 05:55:15.426 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 9/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:55:15.433 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:55:15.439 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 05:55:15.444 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 05:55:15.450 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 05:55:15.451 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:00:10.451 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:00:10.452 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:00:10.454 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:00:10.455 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:00:10.455 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:00:10.458 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:00:10.462 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:00:10.462 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:00:10.746 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:00:10.747 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:00:11.007 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:00:11.008 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:00:12.269 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:00:12.269 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:00:14.534 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:00:14.540 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 10/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:00:14.545 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:00:14.550 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:00:14.556 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:00:14.562 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:00:14.563 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:05:31.057 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:05:31.058 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:05:31.063 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:05:31.063 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:05:31.064 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:05:31.067 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:05:31.072 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:05:31.072 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:05:31.362 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:05:31.363 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:05:31.621 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:05:31.622 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:05:32.884 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:05:32.885 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:05:35.157 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:05:35.164 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 11/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:05:35.171 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:05:35.177 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:05:35.183 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:05:35.189 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:05:35.190 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:10:30.994 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:10:30.995 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:10:30.998 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:10:30.998 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:10:30.998 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:10:31.001 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:10:31.006 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:10:31.006 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:10:31.298 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:10:31.299 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:10:31.560 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:10:31.561 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:10:32.819 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:10:32.820 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:10:35.082 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:10:35.088 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 12/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:10:35.094 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:10:35.099 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:10:35.107 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:10:35.113 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:10:35.114 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:15:10.649 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:15:10.650 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:15:10.652 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:15:10.653 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:15:10.653 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:15:10.668 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:15:10.673 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:15:10.674 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:15:11.010 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:15:11.011 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:15:11.274 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:15:11.274 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:15:12.545 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:15:12.546 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:15:14.806 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:15:14.814 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 13/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:15:14.821 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:15:14.828 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:15:14.833 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:15:14.839 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:15:14.840 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:20:30.965 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:20:30.966 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:20:30.969 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:20:30.969 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:20:30.969 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:20:30.973 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:20:30.978 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:20:30.978 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:20:31.609 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:20:31.610 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:20:31.870 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:20:31.870 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:20:33.160 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:20:33.160 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:20:35.814 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:20:35.821 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 14/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:20:35.826 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:20:35.832 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:20:35.838 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:20:35.844 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:20:35.845 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:25:01.355 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:25:01.356 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:25:01.359 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:25:01.359 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:25:01.360 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:25:01.376 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:25:01.380 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:25:01.381 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:25:01.681 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:25:01.682 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:25:01.948 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:25:01.949 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:25:03.213 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:25:03.214 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:25:05.478 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:25:05.485 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 15/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:25:05.491 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:25:05.497 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:25:05.504 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:25:05.511 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:25:05.512 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:30:03.544 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:30:03.545 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:30:03.548 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:30:03.548 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:30:03.548 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:30:03.551 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:30:03.555 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:30:03.556 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:30:03.858 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:30:03.859 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:30:04.133 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:30:04.134 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:30:05.411 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:30:05.412 | WARNING  | bitfinex_lending_bot.client:_request:175 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:30:07.681 | ERROR    | bitfinex_lending_bot.client:requests_transport:61 - Bitfinex HTTP 500 https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:30:07.689 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 16/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:30:07.696 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:30:07.702 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:30:07.708 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:30:07.714 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:30:07.716 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:35:16.302 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:35:16.303 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:35:16.307 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:35:16.308 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:35:16.308 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:35:16.312 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:35:16.316 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:35:16.317 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:35:16.668 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:35:16.669 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:35:17.006 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:35:17.007 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:35:18.273 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:35:18.275 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:35:20.547 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:35:20.554 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 17/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:35:20.560 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:35:20.566 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:35:20.573 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:35:20.581 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:35:20.583 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:40:16.085 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:40:16.089 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:40:16.099 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:40:16.100 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:40:16.101 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:40:16.120 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:40:16.132 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:40:16.133 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:40:16.653 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:40:16.655 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:40:17.031 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:40:17.032 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:40:18.351 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:40:18.352 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:40:20.701 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:40:20.735 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 18/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:40:20.745 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:40:20.752 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:40:20.763 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:40:20.772 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:40:20.774 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:45:04.257 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:45:04.258 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:45:04.262 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:45:04.263 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:45:04.263 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:45:04.275 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:45:04.280 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:45:04.280 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:45:04.763 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:45:04.766 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:45:05.071 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:45:05.074 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:45:06.735 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:45:06.736 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:45:11.325 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:45:12.061 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 19/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:45:12.515 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:45:12.542 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:45:12.790 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:45:12.856 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:45:12.985 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 06:57:04.337 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 06:57:04.342 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 06:57:04.349 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 06:57:04.350 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 06:57:04.351 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 06:57:04.368 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 06:57:04.379 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 06:57:04.380 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 06:57:04.938 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 06:57:04.944 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 06:57:05.346 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:57:05.348 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:57:06.809 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:57:06.811 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:57:09.476 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 06:57:09.483 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 20/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:57:09.490 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:57:09.496 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 06:57:09.507 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 06:57:09.515 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 06:57:09.516 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:00:21.088 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:00:21.089 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:00:21.091 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:00:21.092 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:00:21.092 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:00:21.096 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:00:21.100 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:00:21.100 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:00:21.386 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:00:21.387 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:00:21.650 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:00:21.651 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:00:22.918 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:00:22.919 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:00:25.192 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:00:25.200 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 21/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:00:25.216 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:00:25.222 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:00:25.230 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:00:25.238 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:00:25.240 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:05:08.930 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:05:08.931 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:05:08.934 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:05:08.935 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:05:08.935 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:05:08.939 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:05:08.943 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:05:08.944 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:05:09.599 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:05:09.600 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:05:09.855 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:05:09.856 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:05:11.127 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:05:11.128 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:05:13.627 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:05:13.635 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 22/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:05:13.642 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:05:13.649 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:05:13.655 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:05:13.664 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:05:13.665 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:10:02.793 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:10:02.794 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:10:02.797 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:10:02.798 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:10:02.798 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:10:02.830 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:10:02.836 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:10:02.837 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:10:03.140 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:10:03.141 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:10:03.409 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:10:03.410 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:10:04.669 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:10:04.670 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:10:07.335 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:10:07.344 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 23/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:10:07.351 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:10:07.359 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:10:07.366 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:10:07.375 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:10:07.377 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:15:08.937 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:15:08.938 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:15:08.941 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:15:08.941 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:15:08.942 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:15:08.945 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:15:08.950 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:15:08.951 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:15:09.248 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:15:09.249 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:15:09.534 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:15:09.535 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:15:11.179 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:15:11.180 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:15:13.462 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:15:13.469 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 24/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:15:13.476 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:15:13.483 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:15:13.491 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:15:13.499 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:15:13.502 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:17:31.841 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:17:31.842 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:17:31.845 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:17:31.845 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:17:31.846 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:17:31.849 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:17:31.854 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:17:31.854 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:17:32.147 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:17:32.148 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:17:32.421 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:17:32.422 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:17:33.690 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:17:33.690 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:17:35.957 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:17:35.964 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 25/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:17:35.970 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:17:35.977 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:17:35.983 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:17:35.992 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:17:35.993 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:20:07.863 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:20:07.864 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:20:07.868 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:20:07.869 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:20:07.869 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:20:07.882 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:20:07.886 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:20:07.887 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:20:08.244 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:20:08.245 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:20:08.583 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:20:08.587 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:20:09.852 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:20:09.853 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/r/wallets attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:20:12.504 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/r/wallets response_body=["error",10100,"apikey: digest invalid"]
+2026-06-30 07:20:12.511 | WARNING  | bitfinex_lending_bot.bot:run_once:92 - Read API failure (consecutive failures: 26/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:20:12.520 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: read_funding_book_or_wallets_or_offers failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:20:12.526 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=API_FAILURE mode=KILL_SWITCH reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets exposure_ratio=0 active_exposure=0 proposed_exposure=0 idle_cash=0 daily_lending=0 total_capital=0
+2026-06-30 07:20:12.532 | ERROR    | bitfinex_lending_bot.bot:run_once:101 - API failure fallback to safe idle: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/r/wallets
+2026-06-30 07:20:12.538 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:20:12.539 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:24:00.702 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:24:00.702 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:24:00.706 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:24:00.706 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:24:00.707 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:24:00.710 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:24:00.715 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:24:00.715 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:24:01.054 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:24:01.055 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:24:01.328 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=7
+2026-06-30 07:24:01.329 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:24:01.596 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:24:01.612 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:24:01.613 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: ⚠️ 第一檔(20%資金)金額 30.00 低於最低門檻 150，合併至下一檔 | ⚠️ 第二檔(30%資金)金額 75.00 低於最低門檻 150，合併至下一檔 | 📈 狙擊第三檔(50%資金): 150.00 @ 利率 0.001370
+2026-06-30 07:24:01.620 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0.01294069928903619049892673435 idle_cash=54.9355234 daily_lending=902.53454433
+2026-06-30 07:24:01.892 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/w/funding/offer/submit response_body=["error",10100,"apikey: invalid"]
+2026-06-30 07:24:01.892 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/w/funding/offer/submit attempt=1/3 retrying in 1.0s response_body=["error",10100,"apikey: invalid"]
+2026-06-30 07:24:03.160 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/w/funding/offer/submit response_body=["error",10100,"apikey: invalid"]
+2026-06-30 07:24:03.161 | WARNING  | bitfinex_lending_bot.client:_request:174 - Bitfinex server error 500 on /v2/auth/w/funding/offer/submit attempt=2/3 retrying in 2.0s response_body=["error",10100,"apikey: invalid"]
+2026-06-30 07:24:05.440 | ERROR    | bitfinex_lending_bot.client:requests_transport:60 - Bitfinex API error status=500 url=https://api.bitfinex.com/v2/auth/w/funding/offer/submit response_body=["error",10100,"apikey: invalid"]
+2026-06-30 07:24:05.448 | WARNING  | bitfinex_lending_bot.bot:run_once:229 - Create funding offer failed (consecutive failures: 27/3): Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 07:24:05.454 | ERROR    | bitfinex_lending_bot.bot:_handle_execution_failure:334 - Execution failure: create_funding_offer failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 07:24:05.455 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: create_funding_offer failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 07:24:05.745 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:24:05.747 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:25:08.918 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:25:08.918 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:25:08.921 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 07:25:08.922 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Persistent kill switch state loaded enabled=true reason=create_funding_offer failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 07:25:08.923 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:25:08.923 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:25:08.924 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:25:08.927 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 07:25:08.934 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:25:08.939 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:25:08.940 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:25:09.234 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:25:09.235 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:25:09.893 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=7
+2026-06-30 07:25:09.894 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:25:10.168 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:25:10.188 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:25:10.189 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: ⚠️ 第一檔(20%資金)金額 30.00 低於最低門檻 150，合併至下一檔 | ⚠️ 第二檔(30%資金)金額 75.00 低於最低門檻 150，合併至下一檔 | 📈 狙擊第三檔(50%資金): 150.00 @ 利率 0.001370
+2026-06-30 07:25:10.199 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=KILL_SWITCH mode=KILL_SWITCH reason=Kill switch is enabled exposure_ratio=0.01294069928903619049892673435 active_exposure=0 proposed_exposure=150.00 idle_cash=54.9355234 daily_lending=902.53454433 total_capital=11591.33649965
+2026-06-30 07:25:10.230 | WARNING  | bitfinex_lending_bot.bot:run_once:194 - Funding offer execution skipped by risk manager
+2026-06-30 07:25:10.232 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:25:10.232 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:30:22.562 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:393 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 07:30:22.564 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:394 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 07:30:22.567 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 07:30:22.567 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:409 - [user=default_user] Persistent kill switch state loaded enabled=true reason=create_funding_offer failed: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/submit
+2026-06-30 07:30:22.568 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:414 - [user=default_user] Strategy initialized: advanced
+2026-06-30 07:30:22.568 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:415 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:30:22.569 | INFO     | bitfinex_lending_bot.bot:run_all_users:570 - [user=default_user] Starting bot execution cycle
+2026-06-30 07:30:22.573 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 07:30:22.582 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:30:22.587 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:30:22.587 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:30:22.882 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=50
+2026-06-30 07:30:22.883 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:30:23.164 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=7
+2026-06-30 07:30:23.165 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:30:23.435 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:30:23.452 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:30:23.453 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: ⚠️ 第一檔(20%資金)金額 30.00 低於最低門檻 150，合併至下一檔 | ⚠️ 第二檔(30%資金)金額 75.00 低於最低門檻 150，合併至下一檔 | 📈 狙擊第三檔(50%資金): 150.00 @ 利率 0.001370
+2026-06-30 07:30:23.460 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=KILL_SWITCH mode=KILL_SWITCH reason=Kill switch is enabled exposure_ratio=0.01294069928903619049892673435 active_exposure=0 proposed_exposure=150.00 idle_cash=54.9355234 daily_lending=902.53454433 total_capital=11591.33649965
+2026-06-30 07:30:23.479 | WARNING  | bitfinex_lending_bot.bot:run_once:194 - Funding offer execution skipped by risk manager
+2026-06-30 07:30:23.481 | INFO     | bitfinex_lending_bot.bot:run_all_users:572 - [user=default_user] Bot execution cycle completed
+2026-06-30 07:30:23.483 | INFO     | bitfinex_lending_bot.bot:run_all_users:580 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 07:32:43.310 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:32:43.351 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:32:43.351 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:32:43.354 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:32:43.355 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:32:43.358 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:32:43.362 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:32:43.363 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:32:43.363 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:32:43.364 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:32:43.364 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:32:43.364 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:32:43.365 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:32:43.365 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:32:43.366 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:32:43.366 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:32:43.380 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:32:43.381 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 07:32:43.388 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:32:43.429 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 07:35:06.720 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:35:06.769 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:35:06.771 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:35:06.774 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:35:06.775 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:35:06.780 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:35:06.785 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:35:06.786 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:35:06.788 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:35:06.788 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:35:06.789 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:35:06.789 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:35:06.789 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:35:06.790 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:35:06.790 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:35:06.791 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:35:06.803 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:35:06.804 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 07:35:06.813 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:35:06.854 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 07:40:09.486 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:40:09.560 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:40:09.560 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:40:09.565 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:40:09.566 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:40:09.580 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:40:09.584 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:40:09.585 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:40:09.585 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:40:09.586 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:40:09.586 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:40:09.588 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:40:09.588 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:40:09.589 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:40:09.590 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:40:09.590 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:40:09.605 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:40:09.607 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 07:40:09.618 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:40:09.672 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 07:45:08.913 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:45:08.957 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:45:08.958 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:45:08.961 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:45:08.961 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:45:08.964 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:45:08.969 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:45:08.970 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:45:08.970 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:45:08.971 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:45:08.971 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:45:08.971 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:45:08.972 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:45:08.972 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:45:08.972 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:45:08.973 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:45:08.985 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:45:08.986 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 07:45:08.994 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:45:09.040 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 07:50:02.253 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:50:02.304 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:50:02.304 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:50:02.308 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:50:02.309 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:50:02.332 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:50:02.337 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:50:02.338 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:50:02.338 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:50:02.338 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:50:02.339 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:50:02.339 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:50:02.340 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:50:02.340 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:50:02.341 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:50:02.341 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:50:02.363 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:50:02.364 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 07:50:02.373 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:50:02.422 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 07:55:08.960 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 07:55:09.002 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 07:55:09.002 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 07:55:09.005 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 07:55:09.006 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 07:55:09.009 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 07:55:09.014 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 07:55:09.015 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 07:55:09.016 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 07:55:09.016 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 07:55:09.017 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 07:55:09.017 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 07:55:09.018 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 07:55:09.018 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 07:55:09.018 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 07:55:09.019 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 07:55:09.033 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 07:55:09.034 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve 0.0 is below minimum 50
+2026-06-30 07:55:09.042 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 07:55:09.088 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 08:00:17.431 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 08:00:17.509 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 08:00:17.510 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 08:00:17.515 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 08:00:17.515 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 08:00:17.530 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 08:00:17.537 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 08:00:17.537 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 08:00:17.539 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 08:00:17.540 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 08:00:17.540 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 08:00:17.541 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 08:00:17.541 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 08:00:17.542 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 08:00:17.543 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 08:00:17.545 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 08:00:17.563 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 08:00:17.564 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 08:00:17.574 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 08:00:17.625 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed
+2026-06-30 08:05:08.753 | WARNING  | bitfinex_lending_bot.bot:run_all_users:539 - No API credentials found in database. Falling back to single-user mode.
+2026-06-30 08:05:08.803 | WARNING  | bitfinex_lending_bot.bot:build_bot:484 - Bitfinex API credentials not found; mock mode enabled
+2026-06-30 08:05:08.804 | INFO     | bitfinex_lending_bot.bot:build_bot:485 - Bitfinex client initialized in mock mode
+2026-06-30 08:05:08.807 | INFO     | bitfinex_lending_bot.bot:build_bot:505 - Strategy initialized: advanced
+2026-06-30 08:05:08.807 | INFO     | bitfinex_lending_bot.bot:build_bot:506 - Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 08:05:08.811 | INFO     | bitfinex_lending_bot.bot:run_once:47 - Starting lending bot cycle symbol=fUST
+2026-06-30 08:05:08.815 | INFO     | bitfinex_lending_bot.bot:run_once:72 - Execution lock acquired instance_id=%s
+2026-06-30 08:05:08.816 | INFO     | bitfinex_lending_bot.bot:run_once:74 - Reading funding book
+2026-06-30 08:05:08.817 | INFO     | bitfinex_lending_bot.client:get_funding_book:220 - Mock mode: funding book read for fUST precision=P0 length=25
+2026-06-30 08:05:08.817 | INFO     | bitfinex_lending_bot.bot:run_once:76 - Funding book read successfully entries=2
+2026-06-30 08:05:08.818 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Reading wallets
+2026-06-30 08:05:08.818 | INFO     | bitfinex_lending_bot.client:get_wallets:227 - Mock mode: wallet read
+2026-06-30 08:05:08.818 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Wallet read successfully wallets=1
+2026-06-30 08:05:08.819 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Reading funding offers
+2026-06-30 08:05:08.819 | INFO     | bitfinex_lending_bot.client:get_funding_offers:239 - Mock mode: funding offers read symbol=fUST
+2026-06-30 08:05:08.820 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Funding offers read successfully offers=0
+2026-06-30 08:05:08.836 | INFO     | bitfinex_lending_bot.bot:run_once:127 - Calling strategy advanced
+2026-06-30 08:05:08.837 | INFO     | bitfinex_lending_bot.bot:run_once:134 - Strategy advanced decision: Available balance after reserve -50.0 is below minimum 50
+2026-06-30 08:05:08.845 | INFO     | bitfinex_lending_bot.risk:log_decision:148 - Risk decision allowed rule=ALLOW mode=ACTIVE exposure_ratio=0 idle_cash=1000 daily_lending=902.53454433
+2026-06-30 08:05:08.890 | INFO     | bitfinex_lending_bot.bot:run_once:282 - Lending bot cycle completed

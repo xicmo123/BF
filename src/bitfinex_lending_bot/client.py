@@ -6,6 +6,7 @@ from decimal import Decimal
 import hashlib
 import hmac
 import json
+import threading
 import time
 from typing import Any, Protocol
 
@@ -13,6 +14,20 @@ import requests
 from loguru import logger
 
 from .models import CreateFundingOfferRequest, FundingBookEntry, FundingOffer, Wallet
+
+# Thread-safe monotonically-increasing nonce (prevents ERR_NONCE_SMALL when
+# two requests are generated within the same microsecond).
+_nonce_lock = threading.Lock()
+_last_nonce: int = 0
+
+
+def _monotonic_nonce() -> str:
+    global _last_nonce
+    with _nonce_lock:
+        candidate = int(time.time() * 1_000_000)
+        _last_nonce = max(_last_nonce + 1, candidate)
+        return str(_last_nonce)
+
 
 
 class BitfinexClientError(RuntimeError):
@@ -41,10 +56,18 @@ def requests_transport(
     timeout: float,
 ) -> Any:
     response = requests.request(method, url, headers=headers, json=json_payload, timeout=timeout)
+    if not response.ok:
+        logger.error(
+            "Bitfinex API error status={} url={} response_body={}",
+            response.status_code,
+            url,
+            response.text[:2000],
+        )
     response.raise_for_status()
     if not response.content:
         return None
     return response.json()
+
 
 
 class BitfinexApiClient:
@@ -66,8 +89,9 @@ class BitfinexApiClient:
         self._timeout = timeout
         self._max_retries = max_retries
         self._retry_backoff_seconds = retry_backoff_seconds
-        self._nonce_factory = nonce_factory or (lambda: str(int(time.time() * 1_000_000)))
+        self._nonce_factory = nonce_factory or _monotonic_nonce
         self._transport = transport
+
 
     def get_funding_book(self, symbol: str, *, precision: str = "P0", length: int = 25) -> list[FundingBookEntry]:
         path = f"/v2/book/{symbol}/{precision}"
@@ -146,9 +170,14 @@ class BitfinexApiClient:
                     continue
                 if status_code is not None and 500 <= status_code < 600 and attempt < self._max_retries:
                     sleep_seconds = self._retry_sleep_seconds(attempt)
-                    logger.warning("Bitfinex server error {} on {} attempt={}/{} retrying in {}s", status_code, path, attempt, self._max_retries, sleep_seconds)
+                    body = exc.response.text[:500] if exc.response is not None else ""
+                    logger.warning(
+                        "Bitfinex server error {} on {} attempt={}/{} retrying in {}s response_body={}",
+                        status_code, path, attempt, self._max_retries, sleep_seconds, body,
+                    )
                     time.sleep(sleep_seconds)
                     continue
+
                 raise BitfinexClientError(f"Bitfinex HTTP error: {exc}") from exc
             except (requests.Timeout, requests.ConnectionError) as exc:
                 if attempt < self._max_retries:
