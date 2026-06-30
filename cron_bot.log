@@ -3048,3 +3048,47 @@
 2026-06-30 02:45:28.166 | CRITICAL | bitfinex_lending_bot.risk:trigger_kill_switch:59 - Risk kill switch triggered: Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/cancel
 2026-06-30 02:45:28.467 | INFO     | bitfinex_lending_bot.bot:run_all_users:522 - [user=default_user] Bot execution cycle completed
 2026-06-30 02:45:28.468 | INFO     | bitfinex_lending_bot.bot:run_all_users:530 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 02:50:22.909 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:343 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 02:50:22.910 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:344 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 02:50:22.913 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 02:50:22.914 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:359 - [user=default_user] Persistent kill switch state loaded enabled=true reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/cancel
+2026-06-30 02:50:22.914 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:364 - [user=default_user] Strategy initialized: advanced
+2026-06-30 02:50:22.914 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:365 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 02:50:22.915 | INFO     | bitfinex_lending_bot.bot:run_all_users:520 - [user=default_user] Starting bot execution cycle
+2026-06-30 02:50:22.918 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 02:50:23.209 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 02:50:23.213 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 02:50:23.213 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 02:50:23.519 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 02:50:23.520 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 02:50:23.789 | INFO     | bitfinex_lending_bot.bot:run_once:86 - Wallet read successfully wallets=7
+2026-06-30 02:50:23.791 | INFO     | bitfinex_lending_bot.bot:run_once:88 - Reading funding offers
+2026-06-30 02:50:24.067 | INFO     | bitfinex_lending_bot.bot:run_once:90 - Funding offers read successfully offers=1
+2026-06-30 02:50:24.086 | INFO     | bitfinex_lending_bot.bot:run_once:121 - Calling strategy advanced
+2026-06-30 02:50:24.086 | INFO     | bitfinex_lending_bot.bot:run_once:128 - Strategy advanced decision: ⚡ 高速模式：投入資金 200 @ 利率 0.000129 放貸天數=2天
+2026-06-30 02:50:24.092 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=KILL_SWITCH mode=KILL_SWITCH reason=Kill switch is enabled exposure_ratio=0.04211547347487588226055112894 active_exposure=300.84484811 proposed_exposure=200 idle_cash=4.9355234 daily_lending=902.53454433 total_capital=11892.18134776
+2026-06-30 02:50:24.114 | WARNING  | bitfinex_lending_bot.bot:run_once:188 - Funding offer execution skipped by risk manager
+2026-06-30 02:50:24.115 | INFO     | bitfinex_lending_bot.bot:run_all_users:522 - [user=default_user] Bot execution cycle completed
+2026-06-30 02:50:24.116 | INFO     | bitfinex_lending_bot.bot:run_all_users:530 - Multi-tenant execution completed successfully for 1 user(s)
+2026-06-30 02:55:10.884 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:343 - [user=default_user] Paper trading disabled; live funding offer writes are enabled
+2026-06-30 02:55:10.885 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:344 - [user=default_user] Bitfinex client initialized (paper_trading=False)
+2026-06-30 02:55:10.888 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 02:55:10.889 | WARNING  | bitfinex_lending_bot.bot:build_bot_for_user:359 - [user=default_user] Persistent kill switch state loaded enabled=true reason=Bitfinex HTTP error: 500 Server Error: Internal Server Error for url: https://api.bitfinex.com/v2/auth/w/funding/offer/cancel
+2026-06-30 02:55:10.889 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:364 - [user=default_user] Strategy initialized: advanced
+2026-06-30 02:55:10.890 | INFO     | bitfinex_lending_bot.bot:build_bot_for_user:365 - [user=default_user] Risk manager initialized max_exposure=0.30 max_daily=99999999999 min_idle=0 kill_switch=False
+2026-06-30 02:55:10.890 | INFO     | bitfinex_lending_bot.bot:run_all_users:520 - [user=default_user] Starting bot execution cycle
+2026-06-30 02:55:10.893 | WARNING  | bitfinex_lending_bot.risk:restore_kill_switch:49 - Restored persistent kill switch (manual_override=False)
+2026-06-30 02:55:11.183 | INFO     | bitfinex_lending_bot.bot:run_once:53 - Starting lending bot cycle symbol=fUST
+2026-06-30 02:55:11.187 | INFO     | bitfinex_lending_bot.bot:run_once:78 - Execution lock acquired instance_id=%s
+2026-06-30 02:55:11.190 | INFO     | bitfinex_lending_bot.bot:run_once:80 - Reading funding book
+2026-06-30 02:55:11.527 | INFO     | bitfinex_lending_bot.bot:run_once:82 - Funding book read successfully entries=50
+2026-06-30 02:55:11.530 | INFO     | bitfinex_lending_bot.bot:run_once:84 - Reading wallets
+2026-06-30 02:55:11.845 | INFO     | bitfinex_lending_bot.bot:run_once:86 - Wallet read successfully wallets=7
+2026-06-30 02:55:11.849 | INFO     | bitfinex_lending_bot.bot:run_once:88 - Reading funding offers
+2026-06-30 02:55:12.172 | INFO     | bitfinex_lending_bot.bot:run_once:90 - Funding offers read successfully offers=0
+2026-06-30 02:55:12.195 | INFO     | bitfinex_lending_bot.bot:run_once:121 - Calling strategy advanced
+2026-06-30 02:55:12.196 | INFO     | bitfinex_lending_bot.bot:run_once:128 - Strategy advanced decision: ⚡ 高速模式：投入資金 200 @ 利率 0.000129 放貸天數=2天
+2026-06-30 02:55:12.203 | WARNING  | bitfinex_lending_bot.risk:log_decision:158 - Risk decision rejected rule=KILL_SWITCH mode=KILL_SWITCH reason=Kill switch is enabled exposure_ratio=0.01725426571871492066523564580 active_exposure=0 proposed_exposure=200 idle_cash=4.9355234 daily_lending=902.53454433 total_capital=11591.33649965
+2026-06-30 02:55:12.235 | WARNING  | bitfinex_lending_bot.bot:run_once:188 - Funding offer execution skipped by risk manager
+2026-06-30 02:55:12.236 | INFO     | bitfinex_lending_bot.bot:run_all_users:522 - [user=default_user] Bot execution cycle completed
+2026-06-30 02:55:12.237 | INFO     | bitfinex_lending_bot.bot:run_all_users:530 - Multi-tenant execution completed successfully for 1 user(s)

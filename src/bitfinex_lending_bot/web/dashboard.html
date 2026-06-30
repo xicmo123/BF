@@ -481,33 +481,42 @@
         </div>
       </div>
 
-      <!-- Manual & Safety (2 cols) -->
+      <!-- Strategy Settings (2 cols) -->
       <div class="lg:col-span-2 glass-card p-6">
-        <h2 class="text-lg font-bold text-white mb-4">手動資金檔位</h2>
-        <div class="grid grid-cols-2 gap-3 mb-4">
-          <button class="step-btn" data-percent="1" onclick="setRollout(1)">
-            <span class="label">保守</span>
-            <span class="value">1%</span>
-          </button>
-          <button class="step-btn" data-percent="5" onclick="setRollout(5)">
-            <span class="label">低風險</span>
-            <span class="value">5%</span>
-          </button>
-          <button class="step-btn" data-percent="10" onclick="setRollout(10)">
-            <span class="label">穩健</span>
-            <span class="value">10%</span>
-          </button>
-          <button class="step-btn" data-percent="25" onclick="setRollout(25)">
-            <span class="label">積極</span>
-            <span class="value">25%</span>
+        <h2 class="text-lg font-bold text-white mb-4">⚙️ 放貸策略設定</h2>
+        <div class="space-y-4">
+          <!-- Strategy Mode -->
+          <div>
+            <label class="block text-sm font-medium text-slate-400 mb-2">策略模式</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button id="modeHighSpeed" onclick="setStrategyMode('high_speed')" class="step-btn active">
+                <span class="label">高速模式</span>
+                <span class="value">⚡</span>
+              </button>
+              <button id="modeHighYield" onclick="setStrategyMode('high_yield')" class="step-btn">
+                <span class="label">高利模式</span>
+                <span class="value">📈</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Period -->
+          <div>
+            <label class="block text-sm font-medium text-slate-400 mb-2">放貸天數 (2-120天)</label>
+            <input type="number" id="periodInput" min="2" max="120" value="2" class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500/50 transition-colors">
+          </div>
+
+          <!-- Reserve Amount -->
+          <div>
+            <label class="block text-sm font-medium text-slate-400 mb-2">保留資金 (不借出底線)</label>
+            <input type="number" id="reserveInput" min="0" step="0.01" value="0" class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500/50 transition-colors">
+          </div>
+
+          <!-- Save Button -->
+          <button onclick="saveStrategySettings()" class="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all mt-2" style="background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(34,214,94,0.1)); border: 1px solid rgba(167,139,250,0.2);">
+            💾 儲存策略設定
           </button>
         </div>
-        <button class="emergency-btn" onclick="emergencyStop()">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-          <span>🚨 一鍵撤資 / 安全暫停</span>
-        </button>
       </div>
     </section>
 
@@ -944,6 +953,9 @@ async function refresh() {
     const failureRate = health.failure_rate != null ? parseFloat(health.failure_rate) : 0;
     const isHealthy = failureRate <= 0.05;
 
+    // --- Load Strategy Settings ---
+    loadStrategySettings();
+
     if (isHealthy) {
       healthDot.className = 'w-2.5 h-2.5 rounded-full bg-[#22d65e] shadow-lg shadow-[#22d65e]/30';
       healthText.textContent = '🟢 系統連線正常';
@@ -1055,6 +1067,71 @@ async function emergencyStop() {
     refresh();
   } catch (err) {
     alert('網路錯誤：' + err.message);
+  }
+}
+
+// ====== Strategy Settings ======
+let currentStrategyMode = 'high_speed';
+
+function setStrategyMode(mode) {
+  currentStrategyMode = mode;
+  document.getElementById('modeHighSpeed').classList.toggle('active', mode === 'high_speed');
+  document.getElementById('modeHighYield').classList.toggle('active', mode === 'high_yield');
+}
+
+async function saveStrategySettings() {
+  const period = parseInt(document.getElementById('periodInput').value);
+  const reserveAmount = parseFloat(document.getElementById('reserveInput').value);
+
+  if (period < 2 || period > 120) {
+    showToast('放貸天數必須在 2-120 天之間', 'error');
+    return;
+  }
+
+  if (reserveAmount < 0) {
+    showToast('保留資金不能為負數', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/strategy/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: currentStrategyMode,
+        period: period,
+        reserve_amount: reserveAmount
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast('❌ ' + (err.error || '儲存失敗'), 'error');
+      return;
+    }
+
+    showToast('✅ 策略設定已儲存', 'success');
+  } catch (err) {
+    showToast('❌ 網路錯誤：' + err.message, 'error');
+  }
+}
+
+async function loadStrategySettings() {
+  try {
+    const res = await fetch('/api/strategy/settings');
+    const data = await res.json();
+
+    if (data.mode) {
+      setStrategyMode(data.mode);
+    }
+    if (data.period) {
+      document.getElementById('periodInput').value = data.period;
+    }
+    if (data.reserve_amount) {
+      document.getElementById('reserveInput').value = data.reserve_amount;
+    }
+  } catch (err) {
+    console.error('Failed to load strategy settings:', err);
   }
 }
 

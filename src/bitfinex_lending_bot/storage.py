@@ -191,6 +191,20 @@ class SQLiteRepository:
                 );
                 """
             )
+            # strategy_settings table for lending strategy configuration
+            connection.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS strategy_settings (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    mode TEXT NOT NULL,
+                    period INTEGER NOT NULL,
+                    reserve_amount REAL NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                INSERT OR IGNORE INTO strategy_settings (id, mode, period, reserve_amount, updated_at)
+                VALUES (1, 'high_speed', 2, 0.0, '{_now()}');
+                """
+            )
 
     def _ensure_decision_trace_columns(self, connection: sqlite3.Connection) -> None:
         existing_columns = {row[1] for row in connection.execute("PRAGMA table_info(decision_traces)").fetchall()}
@@ -444,6 +458,26 @@ class SQLiteRepository:
                 "SELECT * FROM api_credentials ORDER BY user_id"
             ).fetchall()
         return [_row_to_dict(row) for row in rows]
+
+    def get_strategy_settings(self) -> dict[str, str] | None:
+        with self._connect() as connection:
+            row = connection.execute("SELECT * FROM strategy_settings WHERE id = 1").fetchone()
+        return _row_to_dict(row) if row is not None else None
+
+    def set_strategy_settings(self, mode: str, period: int, reserve_amount: float) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO strategy_settings (id, mode, period, reserve_amount, updated_at)
+                VALUES (1, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    mode = excluded.mode,
+                    period = excluded.period,
+                    reserve_amount = excluded.reserve_amount,
+                    updated_at = excluded.updated_at
+                """,
+                (mode, period, reserve_amount, _now()),
+            )
 
     def repair_pending_decision_traces(self, reason: str) -> None:
         with self._connect() as connection:

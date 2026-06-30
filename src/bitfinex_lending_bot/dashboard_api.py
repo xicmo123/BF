@@ -310,3 +310,36 @@ def api_logs(limit: int = 20):
     """Get latest system events/logs from the events table."""
     logs = repo.latest_events(limit)
     return JSONResponse({"logs": logs})
+
+
+@app.get("/api/strategy/settings")
+def strategy_settings():
+    """Get current strategy settings (mode, period, reserve_amount)."""
+    settings_row = repo.get_strategy_settings()
+    return JSONResponse(settings_row or {})
+
+
+@app.post("/api/strategy/settings")
+def set_strategy_settings(payload: dict = Body(...)):
+    """Update strategy settings (mode, period, reserve_amount)."""
+    mode = payload.get("mode", "high_speed")
+    period = int(payload.get("period", 2))
+    reserve_amount = float(payload.get("reserve_amount", 0.0))
+
+    # Validate mode
+    if mode not in ["high_speed", "high_yield"]:
+        return JSONResponse({"error": "mode must be 'high_speed' or 'high_yield'"}, status_code=400)
+
+    # Validate period (2-120 days)
+    if period < 2 or period > 120:
+        return JSONResponse({"error": "period must be between 2 and 120 days"}, status_code=400)
+
+    # Validate reserve_amount (must be non-negative)
+    if reserve_amount < 0:
+        return JSONResponse({"error": "reserve_amount must be non-negative"}, status_code=400)
+
+    try:
+        repo.set_strategy_settings(mode, period, reserve_amount)
+        return JSONResponse({"ok": True, "mode": mode, "period": period, "reserve_amount": reserve_amount})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)

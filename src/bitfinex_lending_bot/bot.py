@@ -344,7 +344,7 @@ def build_bot_for_user(
     logger.info("[user={}] Bitfinex client initialized (paper_trading={})", user_id, settings.paper_trading_enabled)
 
     notifier = TelegramNotifier(settings.telegram_token, settings.telegram_chat_id)
-    strategy = select_strategy()
+    strategy = select_strategy(repository=repository)
     risk_manager = RiskManager(RiskConfig.from_settings(settings))
     from .ops import OpsManager
 
@@ -434,7 +434,7 @@ def build_bot(settings: Settings | None = None) -> LendingBot:
     logger.warning("Bitfinex API credentials not found; mock mode enabled")
     logger.info("Bitfinex client initialized in mock mode")
     notifier = TelegramNotifier(settings.telegram_token, settings.telegram_chat_id)
-    strategy = select_strategy()
+    strategy = select_strategy(repository=repository)
     risk_manager = RiskManager(RiskConfig.from_settings(settings))
     # create OpsManager and attach to risk manager
     from .ops import OpsManager

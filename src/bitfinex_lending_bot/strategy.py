@@ -87,6 +87,7 @@ class AdvancedLendingStrategy(LendingStrategy):
         period_short: int = 2,
         period_long: int = 30,
         hidden_threshold_usd: Decimal = Decimal("10000"),
+        reserve_amount: Decimal = Decimal("0"),
     ) -> None:
         self._mode = mode
         self._min_available = min_available
@@ -95,6 +96,7 @@ class AdvancedLendingStrategy(LendingStrategy):
         self._period_short = period_short
         self._period_long = period_long
         self._hidden_threshold_usd = hidden_threshold_usd
+        self._reserve_amount = reserve_amount
 
     def evaluate(
         self,
@@ -136,13 +138,18 @@ class AdvancedLendingStrategy(LendingStrategy):
                 reasons.append(f"❌ 取消過期單 {offer.id} (掛單利率 {offer.rate} > 目前市場最低要價 {lowest_ask})")
 
         # ====== B) Check available balance ======
-        if available < self._min_available:
+        # Subtract reserve amount from available balance
+        available_after_reserve = available - self._reserve_amount
+        if available_after_reserve < self._min_available:
             if cancel_ids:
                 return StrategyDecision(
                     cancel_offer_ids=tuple(cancel_ids),
-                    reason="; ".join(reasons) + f" | Available {available} below {self._min_available}, skip new offers",
+                    reason="; ".join(reasons) + f" | Available after reserve {available_after_reserve} below {self._min_available}, skip new offers",
                 )
-            return StrategyDecision(reason=f"Available balance {available} is below minimum {self._min_available}")
+            return StrategyDecision(reason=f"Available balance after reserve {available_after_reserve} is below minimum {self._min_available}")
+
+        # Use available_after_reserve for offer creation
+        available = available_after_reserve
 
         # ====== Dynamic period selection ======
         # Convert lowest_ask (daily rate) to APY: rate * 365 * 100 = APY%
@@ -230,9 +237,30 @@ class AdvancedLendingStrategy(LendingStrategy):
         )
 
 
-def select_strategy(name: str = "advanced") -> LendingStrategy:
+def select_strategy(name: str = "advanced", repository=None) -> LendingStrategy:
     if name == "passive_spread":
         return PassiveSpreadStrategy()
     if name == "advanced":
-        return AdvancedLendingStrategy(mode="high_speed")
+        # Load strategy settings from database if repository is provided
+        mode = "high_speed"
+        period = 2
+        reserve_amount = Decimal("0")
+
+        if repository is not None:
+            try:
+                settings = repository.get_strategy_settings()
+                if settings:
+                    mode = settings.get("mode", "high_speed")
+                    period = int(settings.get("period", 2))
+                    reserve_amount = Decimal(str(settings.get("reserve_amount", 0)))
+            except Exception as e:
+                # Fallback to defaults if database read fails
+                pass
+
+        return AdvancedLendingStrategy(
+            mode=mode,
+            period_short=period,
+            period_long=period,
+            reserve_amount=reserve_amount,
+        )
     raise ValueError(f"Unknown strategy: {name}")
