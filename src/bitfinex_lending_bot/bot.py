@@ -188,12 +188,26 @@ class LendingBot:
                     logger.warning("Funding offer execution skipped by risk manager")
                     return
 
-                try:
-                    for offer_id in decision.cancel_offer_ids:
+                # Cancel offers with permissive error handling (Bitfinex 500 on already-executed offers should not kill switch)
+                cancel_success_count = 0
+                for offer_id in decision.cancel_offer_ids:
+                    try:
                         cancelled = self._client.cancel_funding_offer(offer_id)
                         self._repository.upsert_funding_offers([cancelled])
                         self._notify(f"Cancelled funding offer {cancelled.id}: {cancelled.status}")
+                        cancel_success_count += 1
+                    except BitfinexClientError as exc:
+                        # Log warning but continue - offer may already be executed or not exist
+                        logger.warning("Failed to cancel funding offer {}: {} (continuing with create offers)", offer_id, exc)
+                        self._record_event("WARNING", f"Cancel offer {offer_id} failed: {exc}")
+                    except sqlite3.Error as exc:
+                        logger.warning("Failed to persist cancelled offer {}: {} (continuing)", offer_id, exc)
 
+                if cancel_success_count < len(decision.cancel_offer_ids):
+                    logger.info("Cancelled {}/{} offers successfully", cancel_success_count, len(decision.cancel_offer_ids))
+
+                # Create offers with strict error handling (failures here should trigger kill switch)
+                try:
                     for request in decision.create_offers:
                         created = self._client.create_funding_offer(request)
                         self._repository.upsert_funding_offers([created])
