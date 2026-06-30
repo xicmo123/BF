@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hmac
 from decimal import Decimal, InvalidOperation
 
 from fastapi import FastAPI, Request
@@ -11,6 +12,7 @@ from .config import load_settings
 from .security import encrypt_secret
 from .storage import SQLiteRepository
 from .notifier import TelegramNotifier
+from .ops import OpsManager
 
 app = FastAPI(title="Lending Bot Ops Dashboard")
 
@@ -354,13 +356,12 @@ def reset_kill_switch(payload: dict = Body(...)):
     if expected_token is None:
         return JSONResponse({"error": "Kill switch reset token not configured"}, status_code=500)
 
-    if token != expected_token:
+    if not hmac.compare_digest(str(token or ""), str(expected_token)):
         return JSONResponse({"error": "Invalid token"}, status_code=403)
 
     reason = payload.get("reason", "manual_reset")
 
     try:
-        from .ops import OpsManager
         ops = OpsManager(repo, notifier, settings)
         ops.reset_kill_switch(reason)
 

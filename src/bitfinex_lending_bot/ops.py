@@ -177,12 +177,11 @@ class OpsManager:
             return result
 
     def reset_kill_switch(self, reason: str = "manual_reset") -> None:
-        """Reset the kill switch state to disabled."""
+        """Reset the kill switch state to disabled. Raises if the state write fails."""
+        from loguru import logger
+        self._repo.set_kill_switch_state(enabled=False, reason=reason, manual_override=True)
+        logger.info("Kill switch reset: {}", reason)
         try:
-            self._repo.set_kill_switch_state(enabled=False, reason=reason, manual_override=True)
             self._repo.add_event("INFO", f"Kill switch reset: {reason}")
-            from loguru import logger
-            logger.info("Kill switch reset: {}", reason)
         except Exception as exc:
-            from loguru import logger
-            logger.error("Failed to reset kill switch: {}", exc)
+            logger.error("Failed to record kill switch reset event (state was reset successfully): {}", exc)
