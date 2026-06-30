@@ -26,6 +26,8 @@ class Settings:
     max_funding_rate: Decimal = Decimal("0.01")
     max_funding_rate_spread: Decimal = Decimal("0.005")
     paper_trading_enabled: bool = True
+    kill_switch_failure_threshold: int = 3
+    kill_switch_reset_token: str | None = None
 
     @property
     def has_bitfinex_credentials(self) -> bool:
@@ -59,6 +61,8 @@ def load_settings(env_file: str | Path | None = None) -> Settings:
         max_funding_rate_spread=Decimal(os.getenv("MAX_FUNDING_RATE_SPREAD", "0.005")),
         encryption_key=os.getenv("ENCRYPTION_KEY"),
         paper_trading_enabled=_bool(os.getenv("PAPER_TRADING", "true")),
+        kill_switch_failure_threshold=int(os.getenv("KILL_SWITCH_FAILURE_THRESHOLD", "3")),
+        kill_switch_reset_token=os.getenv("KILL_SWITCH_RESET_TOKEN"),
     )
 
 

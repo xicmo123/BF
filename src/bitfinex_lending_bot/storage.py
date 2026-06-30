@@ -109,6 +109,13 @@ class SQLiteRepository:
                 );
                 INSERT OR IGNORE INTO kill_switch_state (id, enabled, reason, manual_override, updated_at)
                 VALUES (1, 0, '', 0, '{_now()}');
+                CREATE TABLE IF NOT EXISTS failure_counter (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    consecutive_create_failures INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                INSERT OR IGNORE INTO failure_counter (id, consecutive_create_failures, updated_at)
+                VALUES (1, 0, '{_now()}');
                 """
             )
             self._ensure_decision_trace_columns(connection)
@@ -477,6 +484,39 @@ class SQLiteRepository:
                     updated_at = excluded.updated_at
                 """,
                 (mode, period, reserve_amount, _now()),
+            )
+
+    def get_failure_count(self) -> int:
+        with self._connect() as connection:
+            row = connection.execute("SELECT consecutive_create_failures FROM failure_counter WHERE id = 1").fetchone()
+        return int(row["consecutive_create_failures"]) if row else 0
+
+    def increment_failure_count(self) -> int:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO failure_counter (id, consecutive_create_failures, updated_at)
+                VALUES (1, 1, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    consecutive_create_failures = consecutive_create_failures + 1,
+                    updated_at = ?
+                """,
+                (_now(), _now()),
+            )
+            row = connection.execute("SELECT consecutive_create_failures FROM failure_counter WHERE id = 1").fetchone()
+        return int(row["consecutive_create_failures"]) if row else 0
+
+    def reset_failure_count(self) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO failure_counter (id, consecutive_create_failures, updated_at)
+                VALUES (1, 0, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    consecutive_create_failures = 0,
+                    updated_at = ?
+                """,
+                (_now(), _now()),
             )
 
     def repair_pending_decision_traces(self, reason: str) -> None:

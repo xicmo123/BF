@@ -175,3 +175,14 @@ class OpsManager:
         except Exception as exc:
             result.update({"error": str(exc)})
             return result
+
+    def reset_kill_switch(self, reason: str = "manual_reset") -> None:
+        """Reset the kill switch state to disabled."""
+        try:
+            self._repo.set_kill_switch_state(enabled=False, reason=reason, manual_override=True)
+            self._repo.add_event("INFO", f"Kill switch reset: {reason}")
+            from loguru import logger
+            logger.info("Kill switch reset: {}", reason)
+        except Exception as exc:
+            from loguru import logger
+            logger.error("Failed to reset kill switch: {}", exc)

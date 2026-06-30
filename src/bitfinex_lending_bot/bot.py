@@ -89,7 +89,7 @@ class LendingBot:
                     open_offers = self._client.get_funding_offers(symbol)
                     logger.info("Funding offers read successfully offers={}", len(open_offers))
                 except BitfinexClientError as exc:
-                    self._risk_manager.trigger_kill_switch(f"API failure: {exc}")
+                    self._risk_manager.trigger_kill_switch(f"read_funding_book_or_wallets_or_offers failed: {exc}")
                     risk_decision = self._risk_manager.safe_idle_decision(str(exc))
                     self._record_risk_decision(risk_decision)
                     self._record_event("ERROR", f"API failure fallback to safe idle: {exc}")
@@ -106,7 +106,7 @@ class LendingBot:
                     self._repository.save_wallets(wallets)
                     self._repository.upsert_funding_offers(open_offers)
                 except sqlite3.Error as exc:
-                    self._risk_manager.trigger_kill_switch(f"SQLite write failure: {exc}")
+                    self._risk_manager.trigger_kill_switch(f"save_funding_book_or_wallets_or_offers SQLite write failed: {exc}")
                     risk_decision = self._risk_manager.safe_idle_decision(str(exc))
                     self._record_risk_decision(risk_decision)
                     self._record_event("ERROR", f"SQLite write failure fallback to safe idle: {exc}")
@@ -131,7 +131,7 @@ class LendingBot:
                 try:
                     daily_lending_amount = self._repository.todays_lending_amount()
                 except sqlite3.Error as exc:
-                    self._risk_manager.trigger_kill_switch(f"SQLite read failure: {exc}")
+                    self._risk_manager.trigger_kill_switch(f"todays_lending_amount SQLite read failed: {exc}")
                     risk_decision = self._risk_manager.safe_idle_decision(str(exc))
                     self._record_risk_decision(risk_decision)
                     self._record_event("ERROR", f"SQLite read failure fallback to safe idle: {exc}")
@@ -206,20 +206,50 @@ class LendingBot:
                 if cancel_success_count < len(decision.cancel_offer_ids):
                     logger.info("Cancelled {}/{} offers successfully", cancel_success_count, len(decision.cancel_offer_ids))
 
-                # Create offers with strict error handling (failures here should trigger kill switch)
+                # Create offers with consecutive failure counting
                 try:
                     for request in decision.create_offers:
                         created = self._client.create_funding_offer(request)
                         self._repository.upsert_funding_offers([created])
                         self._notify(f"Created {created.symbol} funding offer {created.id} at rate {created.rate}")
+                    # Success: reset failure counter
+                    self._repository.reset_failure_count()
                 except (BitfinexClientError, sqlite3.Error) as exc:
-                    self._handle_execution_failure(
-                        pending_trace_id,
-                        pending_trace,
-                        str(exc),
-                        lock_result,
-                    )
-                    return
+                    # Increment failure counter
+                    current_failures = self._repository.increment_failure_count()
+                    threshold = self._settings.kill_switch_failure_threshold
+
+                    failure_reason = f"create_funding_offer failed: {exc}"
+                    logger.warning("Create funding offer failed (consecutive failures: {}/{}): {}", current_failures, threshold, exc)
+                    self._record_event("WARNING", f"{failure_reason} (consecutive: {current_failures}/{threshold})")
+
+                    if current_failures >= threshold:
+                        # Threshold exceeded: trigger kill switch
+                        self._handle_execution_failure(
+                            pending_trace_id,
+                            pending_trace,
+                            failure_reason,
+                            lock_result,
+                        )
+                        return
+                    else:
+                        # Threshold not exceeded: safe idle this round, don't kill switch
+                        logger.info("Failure count {}/{} below threshold, safe idle this round", current_failures, threshold)
+                        safe_idle_trace = DecisionTrace(
+                            input_snapshot=pending_trace.input_snapshot,
+                            strategy_decision=decision,
+                            risk_decision=self._risk_manager.safe_idle_decision(failure_reason),
+                            outcome="SAFE_IDLE",
+                            execution_instance_id=lock_result.instance_id,
+                            lock_status=lock_result.status,
+                            lock_timestamp=lock_result.timestamp,
+                            failure_reason=failure_reason,
+                        )
+                        if pending_trace_id is not None:
+                            self._repository.update_decision_trace(pending_trace_id, safe_idle_trace)
+                        else:
+                            self._record_decision_trace(safe_idle_trace)
+                        return
 
                 executed_trace = DecisionTrace(
                     input_snapshot=pending_trace.input_snapshot,

@@ -343,3 +343,29 @@ def set_strategy_settings(payload: dict = Body(...)):
         return JSONResponse({"ok": True, "mode": mode, "period": period, "reserve_amount": reserve_amount})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/kill-switch/reset")
+def reset_kill_switch(payload: dict = Body(...)):
+    """Reset the kill switch state to disabled (requires admin token)."""
+    token = payload.get("token")
+    expected_token = settings.kill_switch_reset_token
+
+    if expected_token is None:
+        return JSONResponse({"error": "Kill switch reset token not configured"}, status_code=500)
+
+    if token != expected_token:
+        return JSONResponse({"error": "Invalid token"}, status_code=403)
+
+    reason = payload.get("reason", "manual_reset")
+
+    try:
+        from .ops import OpsManager
+        ops = OpsManager(repo, notifier, settings)
+        ops.reset_kill_switch(reason)
+
+        # Return current kill switch state
+        state = repo.get_kill_switch_state()
+        return JSONResponse({"ok": True, "state": state or {}})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
