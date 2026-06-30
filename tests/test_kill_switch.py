@@ -51,6 +51,10 @@ def test_reset_kill_switch(tmp_path: Path) -> None:
     notifier = TelegramNotifier(None, None)
     ops = OpsManager(repo, notifier, settings)
 
+    # Set failure count to 1 to verify it gets reset
+    repo.increment_failure_count()
+    assert repo.get_failure_count() == 1
+
     # Enable kill switch
     repo.set_kill_switch_state(enabled=True, reason="test", manual_override=False)
     state = repo.get_kill_switch_state()
@@ -59,6 +63,9 @@ def test_reset_kill_switch(tmp_path: Path) -> None:
 
     # Reset kill switch
     ops.reset_kill_switch("test_reset")
+
+    # Verify failure count is reset
+    assert repo.get_failure_count() == 0
 
     # Verify it's disabled
     state = repo.get_kill_switch_state()

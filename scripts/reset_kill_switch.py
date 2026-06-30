@@ -18,12 +18,15 @@ def main():
     repo.initialize()
 
     before = repo.get_kill_switch_state()
-    print(f"清除前狀態: {before}")
+    before_fail = repo.get_failure_count()
+    print(f"清除前狀態: {before}, 連續失敗次數: {before_fail}")
 
     repo.set_kill_switch_state(enabled=False, reason=reason, manual_override=True)
+    repo.reset_failure_count()
 
     after = repo.get_kill_switch_state()
-    print(f"清除後狀態: {after}")
+    after_fail = repo.get_failure_count()
+    print(f"清除後狀態: {after}, 連續失敗次數: {after_fail}")
     print("已清除,請重新跑一次 bot 確認是否正常下單。")
 
 

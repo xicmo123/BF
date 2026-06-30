@@ -7,6 +7,11 @@ from typing import Literal
 
 from .models import CreateFundingOfferRequest, FundingBookEntry, FundingOffer, StrategyDecision, Wallet
 
+from loguru import logger
+
+BITFINEX_MIN_FUNDING_OFFER = Decimal("150")
+
+
 
 class LendingStrategy(ABC):
     name: str
@@ -29,8 +34,8 @@ class PassiveSpreadStrategy(LendingStrategy):
     def __init__(
         self,
         *,
-        min_available: Decimal = Decimal("1"),
-        offer_amount: Decimal = Decimal("1"),
+        min_available: Decimal = Decimal("150"),
+        offer_amount: Decimal = Decimal("150"),
         min_rate: Decimal = Decimal("0.0001"),
         period: int = 2,
     ) -> None:
@@ -62,6 +67,8 @@ class PassiveSpreadStrategy(LendingStrategy):
         market_rate = positive_asks[0].rate if positive_asks else self._min_rate
         rate = max(market_rate, self._min_rate)
         amount = min(self._offer_amount, available)
+        if amount < BITFINEX_MIN_FUNDING_OFFER:
+            return StrategyDecision(reason=f"Offer amount {amount} is below Bitfinex minimum {BITFINEX_MIN_FUNDING_OFFER}")
         offer = CreateFundingOfferRequest(symbol=symbol, amount=amount, rate=rate, period=self._period)
         return StrategyDecision(create_offers=(offer,), reason=f"Create passive offer at {rate}")
 
@@ -169,66 +176,87 @@ class AdvancedLendingStrategy(LendingStrategy):
             # Quantize rate to 6 decimal places to avoid Bitfinex 500 error
             rate = rate.quantize(Decimal("0.000001"))
 
-            hidden = available >= self._hidden_threshold_usd
-            offer = CreateFundingOfferRequest(
-                symbol=symbol,
-                amount=available,
-                rate=rate,
-                period=period,
-                hidden=hidden,
-            )
-            create_offers.append(offer)
-            reasons.append(
-                f"⚡ 高速模式：投入資金 {available} @ 利率 {rate} 放貸天數={period}天"
-                f"{' (隱藏單)' if hidden else ''}"
-            )
+            if available < BITFINEX_MIN_FUNDING_OFFER:
+                reasons.append(f"⚠️ 高速模式：可用資金 {available} 低於最低門檻 {BITFINEX_MIN_FUNDING_OFFER}，跳過下單")
+            else:
+                hidden = available >= self._hidden_threshold_usd
+                offer = CreateFundingOfferRequest(
+                    symbol=symbol,
+                    amount=available,
+                    rate=rate,
+                    period=period,
+                    hidden=hidden,
+                )
+                create_offers.append(offer)
+                reasons.append(
+                    f"⚡ 高速模式：投入資金 {available} @ 利率 {rate} 放貸天數={period}天"
+                    f"{' (隱藏單)' if hidden else ''}"
+                )
 
         else:  # high_yield mode — 3-tier ladder
             # Tier 1: 20% at Lowest Ask + 2% (safe base)
             tier1_pct = Decimal("0.20")
             tier1_amount = (available * tier1_pct).quantize(Decimal("0.01"))
             tier1_rate = (lowest_ask * Decimal("1.02")).quantize(Decimal("0.000001"))  # +2%
-            if tier1_amount > 0:
-                hidden1 = tier1_amount >= self._hidden_threshold_usd
-                create_offers.append(CreateFundingOfferRequest(
-                    symbol=symbol,
-                    amount=tier1_amount,
-                    rate=tier1_rate,
-                    period=period,
-                    hidden=hidden1,
-                ))
-                reasons.append(f"📈 階梯第一檔(20%資金): {tier1_amount} @ 利率 {tier1_rate}")
 
             # Tier 2: 30% at Lowest Ask * 1.5 (placeholder for 7-day high avg)
             tier2_pct = Decimal("0.30")
             tier2_amount = (available * tier2_pct).quantize(Decimal("0.01"))
-            tier2_rate = (lowest_ask * Decimal("1.5")).quantize(Decimal("0.000001"))  # placeholder: 1.5x lowest ask
-            if tier2_amount > 0:
-                hidden2 = tier2_amount >= self._hidden_threshold_usd
-                create_offers.append(CreateFundingOfferRequest(
-                    symbol=symbol,
-                    amount=tier2_amount,
-                    rate=tier2_rate,
-                    period=period,
-                    hidden=hidden2,
-                ))
-                reasons.append(f"📈 階梯第二檔(30%資金): {tier2_amount} @ 利率 {tier2_rate}")
+            tier2_rate = (lowest_ask * Decimal("1.5")).quantize(Decimal("0.000001"))
 
             # Tier 3: 50% at extreme high rate (50% APY sniper)
             tier3_pct = Decimal("0.50")
             tier3_amount = (available * tier3_pct).quantize(Decimal("0.01"))
-            # 50% APY ≈ 0.00137 daily rate (50 / 365 / 100)
             tier3_rate = max(lowest_ask * Decimal("3"), Decimal("0.00137")).quantize(Decimal("0.000001"))
-            if tier3_amount > 0:
-                hidden3 = tier3_amount >= self._hidden_threshold_usd
+
+            t_offers = [
+                {"name": "第一檔(20%資金)", "amount": tier1_amount, "rate": tier1_rate},
+                {"name": "第二檔(30%資金)", "amount": tier2_amount, "rate": tier2_rate},
+                {"name": "狙擊第三檔(50%資金)", "amount": tier3_amount, "rate": tier3_rate},
+            ]
+
+            merged_offers: list[dict[str, Any]] = []
+            carry_over = Decimal("0")
+
+            for i, t in enumerate(t_offers):
+                current_amount = t["amount"] + carry_over
+                if current_amount <= 0:
+                    continue
+
+                is_last_tier = (i == len(t_offers) - 1)
+
+                if current_amount < BITFINEX_MIN_FUNDING_OFFER:
+                    if not is_last_tier:
+                        carry_over = current_amount
+                        reasons.append(f"⚠️ {t['name']}金額 {current_amount} 低於最低門檻 {BITFINEX_MIN_FUNDING_OFFER}，合併至下一檔")
+                    else:
+                        if merged_offers:
+                            # Merge backward
+                            last_valid = merged_offers[-1]
+                            old_amount = last_valid["amount"]
+                            new_amount = old_amount + current_amount
+                            last_valid["amount"] = new_amount
+                            reasons.append(f"⚠️ {t['name']}金額 {current_amount} 低於最低門檻 {BITFINEX_MIN_FUNDING_OFFER}，且無下一檔，往回合併至上一檔，前一檔金額從 {old_amount} 變更為 {new_amount}")
+                        else:
+                            reasons.append(f"⚠️ 總金額 {current_amount} 低於最低門檻 {BITFINEX_MIN_FUNDING_OFFER}，跳過下單")
+                else:
+                    merged_offers.append({
+                        "name": t["name"],
+                        "amount": current_amount,
+                        "rate": t["rate"]
+                    })
+                    carry_over = Decimal("0")
+
+            for mo in merged_offers:
+                hidden = mo["amount"] >= self._hidden_threshold_usd
                 create_offers.append(CreateFundingOfferRequest(
                     symbol=symbol,
-                    amount=tier3_amount,
-                    rate=tier3_rate,
+                    amount=mo["amount"],
+                    rate=mo["rate"],
                     period=period,
-                    hidden=hidden3,
+                    hidden=hidden,
                 ))
-                reasons.append(f"🎯  sniper狙擊第三檔(50%資金): {tier3_amount} @ 利率 {tier3_rate} (極高回報單)")
+                reasons.append(f"📈 {mo['name']}: {mo['amount']} @ 利率 {mo['rate']}{' (隱藏單)' if hidden else ''}")
 
         return StrategyDecision(
             create_offers=tuple(create_offers),

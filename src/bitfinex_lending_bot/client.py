@@ -84,6 +84,8 @@ class BitfinexApiClient:
         return [FundingOffer.from_bitfinex(row) for row in data]
 
     def create_funding_offer(self, request: CreateFundingOfferRequest) -> FundingOffer:
+        if request.amount < Decimal("150"):
+            raise ValueError("Funding offer amount must be >= 150 USD")
         data = self._private("POST", "/v2/auth/w/funding/offer/submit", request.to_payload())
         row = self._extract_notification_payload(data)
         offer = FundingOffer.from_bitfinex(row)
@@ -212,6 +214,8 @@ class MockBitfinexApiClient(BitfinexApiClient):
         return offers
 
     def create_funding_offer(self, request: CreateFundingOfferRequest) -> FundingOffer:
+        if request.amount < Decimal("150"):
+            raise ValueError("Funding offer amount must be >= 150 USD")
         offer_id = self._next_offer_id
         self._next_offer_id += 1
         now = datetime.now(UTC)
@@ -276,6 +280,8 @@ class PaperTradingBitfinexApiClient(BitfinexApiClient):
         return live_offers + paper_offers
 
     def create_funding_offer(self, request: CreateFundingOfferRequest) -> FundingOffer:
+        if request.amount < Decimal("150"):
+            raise ValueError("Funding offer amount must be >= 150 USD")
         offer_id = self._next_paper_offer_id
         self._next_paper_offer_id -= 1
         now = datetime.now(UTC)

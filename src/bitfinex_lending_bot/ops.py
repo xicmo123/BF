@@ -180,6 +180,7 @@ class OpsManager:
         """Reset the kill switch state to disabled. Raises if the state write fails."""
         from loguru import logger
         self._repo.set_kill_switch_state(enabled=False, reason=reason, manual_override=True)
+        self._repo.reset_failure_count()
         logger.info("Kill switch reset: {}", reason)
         try:
             self._repo.add_event("INFO", f"Kill switch reset: {reason}")
