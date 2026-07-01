@@ -129,6 +129,7 @@ export default function HomePage() {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [showForm, setShowForm] = useState(true);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [timeframe, setTimeframe] = useState<"day" | "month" | "quarter" | "year">("day");
   const formSectionRef = useRef<HTMLDivElement | null>(null);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
@@ -353,6 +354,72 @@ export default function HomePage() {
     });
   }
 
+  function buildFallbackHistory(currentNetWorth: number) {
+    const base = Math.max(1000, Number(currentNetWorth || 10000));
+    return Array.from({ length: 7 }, (_, index) => {
+      const ratio = 1 - index * 0.035;
+      const value = Math.max(1000, base * ratio);
+      return {
+        id: `fallback-${index}`,
+        date: new Date(Date.now() - (6 - index) * 24 * 60 * 60 * 1000).toISOString(),
+        totalAssets: value,
+        totalLiabilities: Math.max(0, value * 0.08),
+        netWorth: value,
+      } as HistoryPoint;
+    });
+  }
+
+  function buildChartSeries(historyPoints: HistoryPoint[], selectedTimeframe: typeof timeframe) {
+    const sorted = [...historyPoints].sort(
+      (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime()
+    );
+
+    if (sorted.length === 0) {
+      return buildFallbackHistory(summary.netWorth).map((point) => ({
+        ...point,
+        label: new Date(point.date).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" }),
+      }));
+    }
+
+    if (selectedTimeframe === "day") {
+      const source = sorted.slice(-7);
+      return source.map((point) => ({
+        ...point,
+        label: new Date(point.date).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" }),
+      }));
+    }
+
+    const grouped = new Map<string, HistoryPoint>();
+
+    for (const point of sorted) {
+      const date = new Date(point.date);
+      let key = "";
+
+      if (selectedTimeframe === "month") {
+        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      } else if (selectedTimeframe === "quarter") {
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
+        key = `${date.getFullYear()}-Q${quarter}`;
+      } else {
+        key = `${date.getFullYear()}`;
+      }
+
+      grouped.set(key, point);
+    }
+
+    return Array.from(grouped.entries())
+      .slice(-12)
+      .map(([key, point]) => ({
+        ...point,
+        label:
+          selectedTimeframe === "month"
+            ? key.replace("-", " / ")
+            : selectedTimeframe === "quarter"
+              ? key
+              : key,
+      }));
+  }
+
   const accountGroups = [
     { title: "【流動資金】", categories: ["BANK_ACCOUNT", "CASH"], accent: "from-emerald-500 to-teal-500" },
     { title: "【投資組合】", categories: ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"], accent: "from-sky-500 to-blue-500" },
@@ -360,6 +427,69 @@ export default function HomePage() {
     { title: "【應收款項】", categories: ["RECEIVABLE"], accent: "from-violet-500 to-fuchsia-500" },
     { title: "【負債與應付款】", categories: ["PAYABLE", "MORTGAGE", "CAR_LOAN", "CREDIT_LOAN"], accent: "from-rose-500 to-pink-500" },
   ];
+
+  const chartData = useMemo(() => buildChartSeries(history, timeframe), [history, timeframe, summary.netWorth]);
+
+  const renderedAccountGroups = useMemo(() => {
+    return accountGroups
+      .map((group) => {
+        const relevantAccounts = accounts.filter((account) => group.categories.includes(account.category));
+        if (relevantAccounts.length === 0) {
+          return null;
+        }
+
+        const isInvestmentGroup = group.categories.some((category) => symbolRequiredCategories.includes(category));
+
+        if (isInvestmentGroup) {
+          return {
+            ...group,
+            cards: relevantAccounts.map((account) => ({
+              id: account.id,
+              name: account.name,
+              category: account.category,
+              account,
+              label: `${categoryLabelMap[account.category] ?? account.category}${account.symbol ? ` · ${account.symbol}` : ""}`,
+              quantity: Number(account.quantity ?? 0),
+              currentValue: Number(account.currentValue ?? 0),
+              accountCount: 1,
+            })),
+          };
+        }
+
+        const groupedCards = Object.values(
+          relevantAccounts.reduce<Record<string, { id: string; name: string; category: string; label: string; quantity: number; currentValue: number; accountCount: number; account: Account }>>(
+            (result, account) => {
+              const key = account.name.trim().toLowerCase();
+              if (!result[key]) {
+                result[key] = {
+                  id: `group-${key}`,
+                  name: account.name,
+                  category: account.category,
+                  label: categoryLabelMap[account.category] ?? account.category,
+                  quantity: 0,
+                  currentValue: 0,
+                  accountCount: 0,
+                  account,
+                };
+              }
+
+              result[key].quantity += Number(account.quantity ?? 0);
+              result[key].currentValue += Number(account.currentValue ?? 0);
+              result[key].accountCount += 1;
+              result[key].label = result[key].accountCount > 1 ? `${result[key].label} · 多筆同名帳戶` : result[key].label;
+              return result;
+            },
+            {}
+          )
+        );
+
+        return {
+          ...group,
+          cards: groupedCards,
+        };
+      })
+      .filter(Boolean);
+  }, [accounts]);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_35%),linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
@@ -424,14 +554,25 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-5 h-56">
-                {history.length === 0 ? (
-                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-300 text-sm text-slate-500">
-                    尚無歷史快照資料
+              <div className="mt-5">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-slate-500">資產趨勢</p>
+                  <div className="flex rounded-full border border-slate-200 bg-white p-1">
+                    {(["day", "month", "quarter", "year"] as const).map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setTimeframe(item)}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${timeframe === item ? "bg-emerald-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}
+                      >
+                        {item === "day" ? "日" : item === "month" ? "月" : item === "quarter" ? "季" : "年"}
+                      </button>
+                    ))}
                   </div>
-                ) : (
+                </div>
+                <div className="h-56">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={history}>
+                    <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
@@ -439,10 +580,7 @@ export default function HomePage() {
                         </linearGradient>
                       </defs>
                       <XAxis
-                        dataKey="date"
-                        tickFormatter={(value) =>
-                          new Date(value).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" })
-                        }
+                        dataKey="label"
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: "#64748b", fontSize: 12 }}
@@ -457,7 +595,7 @@ export default function HomePage() {
                       <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#netWorthGradient)" />
                     </AreaChart>
                   </ResponsiveContainer>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -466,9 +604,8 @@ export default function HomePage() {
         <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {accountGroups.map((group) => {
-                const groupAccounts = accounts.filter((account) => group.categories.includes(account.category));
-                if (groupAccounts.length === 0) {
+              {renderedAccountGroups.map((group) => {
+                if (!group) {
                   return null;
                 }
 
@@ -477,26 +614,29 @@ export default function HomePage() {
                     <CardHeader className="pb-3">
                       <div className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${group.accent}`} />
                       <CardTitle className="mt-3 text-lg">{group.title}</CardTitle>
-                      <CardDescription>{groupAccounts.length} 個帳戶</CardDescription>
+                      <CardDescription>{group.cards.length} 個卡片</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {groupAccounts.map((account) => (
-                        <div key={account.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      {group.cards.map((card) => (
+                        <div key={card.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold text-slate-900">{account.name}</p>
-                              <p className="mt-1 text-xs text-slate-500">{categoryLabelMap[account.category] ?? account.category}</p>
+                              <p className="text-sm font-semibold text-slate-900">{card.name}</p>
+                              <p className="mt-1 text-xs text-slate-500">{card.label}</p>
+                              {card.accountCount > 1 ? (
+                                <p className="mt-1 text-[11px] text-slate-400">已合併 {card.accountCount} 個相同名稱帳戶</p>
+                              ) : null}
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               <p className="text-sm font-semibold text-slate-900">
-                                NT$ {formatCurrency(Number(account.currentValue ?? 0))}
+                                NT$ {formatCurrency(Number(card.currentValue ?? 0))}
                               </p>
                               <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => startEdit(account)}>
+                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => startEdit(card.account)}>
                                   <Pencil className="mr-1 h-3.5 w-3.5" />
                                   編輯
                                 </Button>
-                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-rose-600" onClick={() => void handleDelete(account.id)}>
+                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-rose-600" onClick={() => void handleDelete(card.account.id)}>
                                   <Trash2 className="mr-1 h-3.5 w-3.5" />
                                   刪除
                                 </Button>
@@ -605,7 +745,7 @@ export default function HomePage() {
 
                       <FormItem>
                         <FormLabel htmlFor="quantity">
-                          {usesAmountInput ? "總金額" : "持有股數 "}
+                          {usesAmountInput ? "總金額 / 餘額" : "持有股數 / 數量"}
                         </FormLabel>
                         <FormControl>
                           <Input
