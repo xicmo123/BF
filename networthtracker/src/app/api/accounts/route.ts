@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import yahooFinance from "yahoo-finance2"
 import { PrismaClient } from "@prisma/client"
 
 declare global {
@@ -10,6 +11,49 @@ const prisma = globalThis.prisma || new PrismaClient()
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma
 
 const categoriesRequiringSymbol = ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"]
+const fixedValueCategories = ["CASH", "BANK_ACCOUNT", "FIXED_ASSET", "RECEIVABLE", "PAYABLE", "MORTGAGE", "CAR_LOAN", "CREDIT_LOAN"]
+
+async function fetchMarketPrice(category: string, symbol: string) {
+  const yahoo = new yahooFinance()
+
+  if (category === "CRYPTO") {
+    const normalizedSymbol = symbol.toUpperCase()
+    const cryptoResponse = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd"
+    )
+
+    if (!cryptoResponse.ok) {
+      throw new Error(`CoinGecko API returned ${cryptoResponse.status}`)
+    }
+
+    const cryptoData = await cryptoResponse.json()
+    const usdPrice =
+      normalizedSymbol === "BTC" || normalizedSymbol === "BITCOIN"
+        ? Number(cryptoData.bitcoin?.usd || 0)
+        : normalizedSymbol === "ETH" || normalizedSymbol === "ETHEREUM"
+          ? Number(cryptoData.ethereum?.usd || 0)
+          : 0
+
+    if (!usdPrice) {
+      throw new Error(`Unsupported or missing crypto price for ${symbol}`)
+    }
+
+    const usdToTwdResult = await yahoo.quote("TWD=X")
+    const usdToTwdRate = Number(usdToTwdResult.regularMarketPrice || 1)
+    return usdPrice * usdToTwdRate
+  }
+
+  const quoteResult = await yahoo.quote(symbol)
+  const marketPrice = Number(quoteResult.regularMarketPrice || 0)
+
+  if (category === "US_STOCK") {
+    const usdToTwdResult = await yahoo.quote("TWD=X")
+    const usdToTwdRate = Number(usdToTwdResult.regularMarketPrice || 1)
+    return marketPrice * usdToTwdRate
+  }
+
+  return marketPrice
+}
 
 export async function GET() {
   const accounts = await prisma.account.findMany({
@@ -96,6 +140,24 @@ export async function POST(request: Request) {
     }
   }
 
+  let currentPriceValue = 1
+  let currentValueValue = quantityValue
+
+  if (categoriesRequiringSymbol.includes(category)) {
+    try {
+      const fetchedPrice = await fetchMarketPrice(category, trimmedSymbol)
+      currentPriceValue = Number(fetchedPrice || 0)
+      currentValueValue = quantityValue * currentPriceValue
+    } catch (error) {
+      console.error("Failed to fetch current market price for new account:", error)
+      currentPriceValue = 0
+      currentValueValue = 0
+    }
+  } else if (fixedValueCategories.includes(category)) {
+    currentPriceValue = 1
+    currentValueValue = quantityValue
+  }
+
   const account = await prisma.account.create({
     data: {
       name: name.trim(),
@@ -104,6 +166,8 @@ export async function POST(request: Request) {
       symbol: trimmedSymbol || null,
       quantity: quantityValue,
       currency: currency as any,
+      currentPrice: currentPriceValue,
+      currentValue: currentValueValue,
       monthlyDeductionAmount: deductionAmountValue,
       deductionDate: deductionDateValue,
       deductFromAccountId: deductFromAccountId || null,

@@ -61,6 +61,16 @@ const categoryLabelMap: Record<string, string> = {
 };
 
 const symbolRequiredCategories = ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"];
+const amountInputCategories = [
+  "CASH",
+  "BANK_ACCOUNT",
+  "FIXED_ASSET",
+  "RECEIVABLE",
+  "PAYABLE",
+  "MORTGAGE",
+  "CAR_LOAN",
+  "CREDIT_LOAN",
+];
 
 type Account = {
   id: string;
@@ -120,6 +130,7 @@ export default function HomePage() {
   const [showForm, setShowForm] = useState(true);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
+  const usesAmountInput = amountInputCategories.includes(formData.category);
   const showDeductionFields = formData.type === "LIABILITY";
   const sourceAccounts = accounts.filter(
     (account) => account.category === "CASH" || account.category === "BANK_ACCOUNT"
@@ -527,7 +538,9 @@ export default function HomePage() {
                       </FormItem>
 
                       <FormItem>
-                        <FormLabel htmlFor="quantity">數量 / 餘額</FormLabel>
+                        <FormLabel htmlFor="quantity">
+                          {usesAmountInput ? "總金額 / 餘額 (Amount)" : "持有股數 / 數量 (Quantity)"}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             id="quantity"
@@ -535,7 +548,7 @@ export default function HomePage() {
                             step="any"
                             value={formData.quantity}
                             onChange={(event) => setFormData({ ...formData, quantity: event.target.value })}
-                            placeholder="例如：1000、1.5"
+                            placeholder={usesAmountInput ? "例如：10000、5000" : "例如：100、0.5"}
                           />
                         </FormControl>
                       </FormItem>
@@ -543,7 +556,7 @@ export default function HomePage() {
 
                     {requiresSymbol ? (
                       <FormItem className="mt-4">
-                        <FormLabel htmlFor="symbol">代號</FormLabel>
+                        <FormLabel htmlFor="symbol">代號 (Symbol)</FormLabel>
                         <FormControl>
                           <Input
                             id="symbol"
