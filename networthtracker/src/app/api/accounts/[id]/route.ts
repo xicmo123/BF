@@ -63,13 +63,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ message: "Invalid JSON payload." }, { status: 400 })
   }
 
-  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate } = body as {
+  const { name, type, category, symbol, quantity, currency, isApiConnected, apiSource, apiKey, apiSecret, monthlyDeductionAmount, deductionDate } = body as {
     name?: string
     type?: string
     category?: string
     symbol?: string
     quantity?: number | string
     currency?: string
+    isApiConnected?: boolean
+    apiSource?: string | null
+    apiKey?: string | null
+    apiSecret?: string | null
     monthlyDeductionAmount?: number | string
     deductionDate?: number | string
     deductFromAccountId?: string | null
@@ -82,8 +86,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     )
   }
 
+  const isApiMode = category === "CRYPTO" && Boolean(isApiConnected)
   const trimmedSymbol = typeof symbol === "string" ? symbol.trim() : ""
-  if (categoriesRequiringSymbol.includes(category) && !trimmedSymbol) {
+  const fallbackSymbol = (typeof apiSource === "string" ? apiSource.trim() : "") || "BITFINEX"
+
+  if (categoriesRequiringSymbol.includes(category) && !trimmedSymbol && !isApiMode) {
     return NextResponse.json(
       { message: "Stocks and crypto accounts require a symbol." },
       { status: 400 }
@@ -95,7 +102,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       ? 0
       : Number(quantity)
 
-  if (Number.isNaN(quantityValue)) {
+  if (!isApiMode && Number.isNaN(quantityValue)) {
     return NextResponse.json(
       { message: "Quantity must be a valid number." },
       { status: 400 }
@@ -137,9 +144,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   let nextCurrentPrice = existingAccount.currentPrice ?? 0
-  let nextCurrentValue = quantityValue
+  let nextCurrentValue = isApiMode ? 0 : quantityValue
 
-  if (categoriesRequiringSymbol.includes(category)) {
+  if (categoriesRequiringSymbol.includes(category) && !isApiMode) {
     try {
       const fetchedPrice = await fetchMarketPrice(category, trimmedSymbol)
       nextCurrentPrice = Number(fetchedPrice || 0)
@@ -160,11 +167,15 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       name: name.trim(),
       type: type as any,
       category: category as any,
-      symbol: trimmedSymbol || null,
+      symbol: isApiMode ? (trimmedSymbol || fallbackSymbol) : (trimmedSymbol || null),
       quantity: quantityValue,
       currency: currency as any,
       currentPrice: nextCurrentPrice,
       currentValue: nextCurrentValue,
+      isApiConnected: isApiMode,
+      apiSource: isApiMode ? (apiSource?.trim() || "BITFINEX") : null,
+      apiKey: isApiMode ? (apiKey?.trim() || null) : null,
+      apiSecret: isApiMode ? (apiSecret?.trim() || null) : null,
       monthlyDeductionAmount: deductionAmountValue,
       deductionDate: deductionDateValue,
     },

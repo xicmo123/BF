@@ -80,6 +80,10 @@ type Account = {
   symbol: string | null;
   quantity: number | null;
   currency: string;
+  isApiConnected: boolean;
+  apiSource: string | null;
+  apiKey: string | null;
+  apiSecret: string | null;
   currentPrice: number | null;
   currentValue: number;
   createdAt: string;
@@ -112,6 +116,10 @@ const defaultForm = {
   symbol: "",
   quantity: "0",
   currency: "TWD",
+  isApiConnected: false,
+  apiSource: "BITFINEX",
+  apiKey: "",
+  apiSecret: "",
   monthlyDeductionAmount: "",
   deductionDate: "",
 };
@@ -132,9 +140,11 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const formSectionRef = useRef<HTMLDivElement | null>(null);
 
-  const requiresSymbol = symbolRequiredCategories.includes(formData.category);
+  const isCryptoApiMode = formData.category === "CRYPTO" && formData.isApiConnected;
+  const requiresSymbol = symbolRequiredCategories.includes(formData.category) && !isCryptoApiMode;
   const usesAmountInput = amountInputCategories.includes(formData.category);
   const showDeductionFields = formData.type === "LIABILITY";
+  const showApiFields = formData.category === "CRYPTO" && formData.isApiConnected;
 
   const summary = useMemo(() => {
     const totalAssets = accounts
@@ -218,6 +228,10 @@ export default function HomePage() {
       symbol: account.symbol ?? "",
       quantity: String(account.quantity ?? account.currentValue ?? 0),
       currency: account.currency,
+      isApiConnected: Boolean(account.isApiConnected),
+      apiSource: account.apiSource ?? "BITFINEX",
+      apiKey: account.apiKey ?? "",
+      apiSecret: account.apiSecret ?? "",
       monthlyDeductionAmount: "",
       deductionDate: "",
     });
@@ -257,8 +271,20 @@ export default function HomePage() {
       return;
     }
 
-    const parsedQuantity = Number(formData.quantity ?? 0);
-    if (Number.isNaN(parsedQuantity)) {
+    if (isCryptoApiMode) {
+      if (!formData.apiKey.trim()) {
+        setError("請填寫 API Key。");
+        return;
+      }
+
+      if (!formData.apiSecret.trim()) {
+        setError("請填寫 API Secret。");
+        return;
+      }
+    }
+
+    const parsedQuantity = isCryptoApiMode ? 0 : Number(formData.quantity ?? 0);
+    if (!isCryptoApiMode && Number.isNaN(parsedQuantity)) {
       setError("數量/餘額必須是有效數字。");
       return;
     }
@@ -267,9 +293,13 @@ export default function HomePage() {
       name: formData.name.trim(),
       type: formData.type,
       category: formData.category,
-      symbol: formData.symbol.trim() || null,
+      symbol: isCryptoApiMode ? (formData.symbol.trim() || formData.apiSource || "BITFINEX") : (formData.symbol.trim() || null),
       quantity: parsedQuantity,
       currency: formData.currency,
+      isApiConnected: isCryptoApiMode,
+      apiSource: isCryptoApiMode ? (formData.apiSource || "BITFINEX") : null,
+      apiKey: isCryptoApiMode ? formData.apiKey.trim() : null,
+      apiSecret: isCryptoApiMode ? formData.apiSecret.trim() : null,
       monthlyDeductionAmount: showDeductionFields ? Number(formData.monthlyDeductionAmount || 0) : null,
       deductionDate: showDeductionFields ? Number(formData.deductionDate || 0) : null,
     };
@@ -788,10 +818,15 @@ export default function HomePage() {
                             value={formData.category}
                             onChange={(event) => {
                               const nextCategory = event.target.value;
+                              const nextIsApiConnected = nextCategory === "CRYPTO" ? formData.isApiConnected : false;
                               setFormData({
                                 ...formData,
                                 category: nextCategory,
                                 symbol: symbolRequiredCategories.includes(nextCategory) ? formData.symbol : "",
+                                isApiConnected: nextIsApiConnected,
+                                apiSource: nextCategory === "CRYPTO" ? formData.apiSource : "BITFINEX",
+                                apiKey: nextCategory === "CRYPTO" ? formData.apiKey : "",
+                                apiSecret: nextCategory === "CRYPTO" ? formData.apiSecret : "",
                               });
                             }}
                             className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
@@ -825,22 +860,85 @@ export default function HomePage() {
                         </FormControl>
                       </FormItem>
 
-                      <FormItem>
-                        <FormLabel htmlFor="quantity">
-                          {usesAmountInput ? "總金額" : "持有股數"}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            id="quantity"
-                            type="number" 
-                            step="any"
-                            value={formData.quantity}
-                            onChange={(event) => setFormData({ ...formData, quantity: event.target.value })}
-                            placeholder={usesAmountInput ? "例如：10000、5000" : "例如：100、0.5"}
-                          />
-                        </FormControl>
-                      </FormItem>
+                      {!showApiFields ? (
+                        <FormItem>
+                          <FormLabel htmlFor="quantity">
+                            {usesAmountInput ? "總金額" : "持有股數"}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              id="quantity"
+                              type="number"
+                              step="any"
+                              value={formData.quantity}
+                              onChange={(event) => setFormData({ ...formData, quantity: event.target.value })}
+                              placeholder={usesAmountInput ? "例如：10000、5000" : "例如：100、0.5"}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      ) : null}
                     </div>
+
+                    {formData.category === "CRYPTO" ? (
+                      <FormItem className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex items-start gap-3">
+                          <input
+                            id="isApiConnected"
+                            type="checkbox"
+                            checked={formData.isApiConnected}
+                            onChange={(event) => setFormData({ ...formData, isApiConnected: event.target.checked })}
+                            className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <div>
+                            <FormLabel htmlFor="isApiConnected">🔌 串接交易所 API (自動同步餘額)</FormLabel>
+                            <FormDescription>啟用後將由交易所 API 取得總資產估值，並自動更新台幣金額。</FormDescription>
+                          </div>
+                        </div>
+                      </FormItem>
+                    ) : null}
+
+                    {showApiFields ? (
+                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                        <FormItem>
+                          <FormLabel htmlFor="apiSource">交易所</FormLabel>
+                          <FormControl>
+                            <select
+                              id="apiSource"
+                              value={formData.apiSource}
+                              onChange={(event) => setFormData({ ...formData, apiSource: event.target.value })}
+                              className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                            >
+                              <option value="BITFINEX">BITFINEX</option>
+                            </select>
+                          </FormControl>
+                        </FormItem>
+
+                        <FormItem>
+                          <FormLabel htmlFor="apiKey">API Key</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="apiKey"
+                              value={formData.apiKey}
+                              onChange={(event) => setFormData({ ...formData, apiKey: event.target.value })}
+                              placeholder="請輸入 Bitfinex API Key"
+                            />
+                          </FormControl>
+                        </FormItem>
+
+                        <FormItem>
+                          <FormLabel htmlFor="apiSecret">API Secret</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="apiSecret"
+                              type="password"
+                              value={formData.apiSecret}
+                              onChange={(event) => setFormData({ ...formData, apiSecret: event.target.value })}
+                              placeholder="請輸入 Bitfinex API Secret"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      </div>
+                    ) : null}
 
                     {requiresSymbol ? (
                       <FormItem className="mt-4">

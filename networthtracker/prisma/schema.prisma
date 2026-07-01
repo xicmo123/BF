@@ -53,6 +53,10 @@ model Account {
   currentPrice  Float?          @default(0) // Current market price
   currentValue  Float           @default(0) // Calculated: quantity * currentPrice
   currency      Currency        @default(TWD)
+  isApiConnected Boolean        @default(false)
+  apiSource     String?
+  apiKey        String?
+  apiSecret     String?
   monthlyDeductionAmount Float?     // Monthly deduction amount for liabilities
   deductionDate Int?               // Day of month for automatic deduction (1-31)
   deductFromAccountId String?      // Cash account to deduct from
