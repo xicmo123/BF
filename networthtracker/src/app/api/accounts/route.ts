@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Invalid JSON payload." }, { status: 400 })
   }
 
-  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate, deductFromAccountId } = body as {
+  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate } = body as {
     name?: string
     type?: string
     category?: string
@@ -173,7 +173,6 @@ export async function POST(request: Request) {
       currentValue: currentValueValue,
       monthlyDeductionAmount: deductionAmountValue,
       deductionDate: deductionDateValue,
-      deductFromAccountId: deductFromAccountId || null,
     },
   })
 

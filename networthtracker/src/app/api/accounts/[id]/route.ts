@@ -63,7 +63,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ message: "Invalid JSON payload." }, { status: 400 })
   }
 
-  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate, deductFromAccountId } = body as {
+  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate } = body as {
     name?: string
     type?: string
     category?: string
@@ -167,7 +167,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       currentValue: nextCurrentValue,
       monthlyDeductionAmount: deductionAmountValue,
       deductionDate: deductionDateValue,
-      deductFromAccountId: deductFromAccountId || null,
     },
   })
 

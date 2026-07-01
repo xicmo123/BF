@@ -37,29 +37,14 @@ export async function GET() {
       }
 
       const deductionAmount = Number(liability.monthlyDeductionAmount);
+      const nextQuantity = Number(liability.quantity ?? 0) - deductionAmount;
 
       await prisma.$transaction(async (tx) => {
-        if (liability.deductFromAccountId) {
-          const sourceAccount = await tx.account.findUnique({
-            where: { id: liability.deductFromAccountId },
-          });
-
-          if (sourceAccount) {
-            await tx.account.update({
-              where: { id: sourceAccount.id },
-              data: {
-                quantity: Number(sourceAccount.quantity ?? 0) - deductionAmount,
-                currentValue: Number(sourceAccount.currentValue ?? 0) - deductionAmount,
-              },
-            });
-          }
-        }
-
         const updatedLiability = await tx.account.update({
           where: { id: liability.id },
           data: {
-            quantity: Number(liability.quantity ?? 0) - deductionAmount,
-            currentValue: Number(liability.currentValue ?? 0) - deductionAmount,
+            quantity: nextQuantity,
+            currentValue: nextQuantity,
           },
         });
 

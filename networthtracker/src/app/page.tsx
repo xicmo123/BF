@@ -114,7 +114,6 @@ const defaultForm = {
   currency: "TWD",
   monthlyDeductionAmount: "",
   deductionDate: "",
-  deductFromAccountId: "",
 };
 
 export default function HomePage() {
@@ -136,9 +135,6 @@ export default function HomePage() {
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
   const usesAmountInput = amountInputCategories.includes(formData.category);
   const showDeductionFields = formData.type === "LIABILITY";
-  const sourceAccounts = accounts.filter(
-    (account) => account.category === "CASH" || account.category === "BANK_ACCOUNT"
-  );
 
   const summary = useMemo(() => {
     const totalAssets = accounts
@@ -224,7 +220,6 @@ export default function HomePage() {
       currency: account.currency,
       monthlyDeductionAmount: "",
       deductionDate: "",
-      deductFromAccountId: "",
     });
     setEditingAccountId(account.id);
     setShowForm(true);
@@ -277,7 +272,6 @@ export default function HomePage() {
       currency: formData.currency,
       monthlyDeductionAmount: showDeductionFields ? Number(formData.monthlyDeductionAmount || 0) : null,
       deductionDate: showDeductionFields ? Number(formData.deductionDate || 0) : null,
-      deductFromAccountId: showDeductionFields ? formData.deductFromAccountId || null : null,
     };
 
     setLoading(true);
@@ -365,12 +359,14 @@ export default function HomePage() {
 
   function buildFallbackHistory(currentNetWorth: number) {
     const base = Math.max(1000, Number(currentNetWorth || 10000));
+    const dailyDrop = Math.max(1000, Math.min(2000, base * 0.0008));
     return Array.from({ length: 7 }, (_, index) => {
-      const ratio = 1 - index * 0.035;
-      const value = Math.max(1000, base * ratio);
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - index));
+      const value = Math.max(1000, base - index * dailyDrop);
       return {
         id: `fallback-${index}`,
-        date: new Date(Date.now() - (6 - index) * 24 * 60 * 60 * 1000).toISOString(),
+        date: date.toISOString(),
         totalAssets: value,
         totalLiabilities: Math.max(0, value * 0.08),
         netWorth: value,
@@ -378,21 +374,54 @@ export default function HomePage() {
     });
   }
 
-  function buildChartSeries(historyPoints: HistoryPoint[], selectedTimeframe: typeof timeframe) {
-    const sorted = [...historyPoints].sort(
-      (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime()
-    );
+  function buildChartSeries(historyPoints: HistoryPoint[], selectedTimeframe: typeof timeframe, currentNetWorth: number) {
+    const sorted = [...historyPoints]
+      .filter((point) => Number.isFinite(Number(point.netWorth)))
+      .sort((left, right) => new Date(left.date).getTime() - new Date(right.date).getTime());
 
-    if (sorted.length === 0) {
-      return buildFallbackHistory(summary.netWorth).map((point) => ({
-        ...point,
-        label: new Date(point.date).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" }),
-      }));
-    }
+    const buildLabel = (date: Date) =>
+      date.toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" });
 
     if (selectedTimeframe === "day") {
-      const source = sorted.slice(-7);
-      return source.map((point) => ({
+      const today = new Date();
+      const hasTodayPoint = sorted.some((point) => {
+        const date = new Date(point.date);
+        return !Number.isNaN(date.getTime()) && date.toDateString() === today.toDateString();
+      });
+
+      if (sorted.length === 0 || !hasTodayPoint) {
+        const dailyDrop = Math.max(1000, Math.min(2000, currentNetWorth * 0.0008 || 1000));
+        return Array.from({ length: 7 }, (_, index) => {
+          const date = new Date(today);
+          date.setDate(today.getDate() - (6 - index));
+          const value = index === 6 ? currentNetWorth : Math.max(0, currentNetWorth - (6 - index) * dailyDrop);
+          return {
+            id: `chart-day-${index}`,
+            date: date.toISOString(),
+            totalAssets: value,
+            totalLiabilities: Math.max(0, value * 0.08),
+            netWorth: value,
+            label: buildLabel(date),
+          };
+        });
+      }
+
+      return sorted.slice(-7).map((point) => {
+        const date = new Date(point.date);
+        const isToday = date.toDateString() === today.toDateString();
+        const value = isToday ? currentNetWorth : Number(point.netWorth ?? 0);
+        return {
+          ...point,
+          netWorth: value,
+          totalAssets: value,
+          totalLiabilities: Math.max(0, value * 0.08),
+          label: buildLabel(date),
+        };
+      });
+    }
+
+    if (sorted.length === 0) {
+      return buildFallbackHistory(currentNetWorth).map((point) => ({
         ...point,
         label: new Date(point.date).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" }),
       }));
@@ -437,7 +466,7 @@ export default function HomePage() {
     { title: "【負債與應付款】", categories: ["PAYABLE", "MORTGAGE", "CAR_LOAN", "CREDIT_LOAN"], accent: "from-rose-500 to-pink-500" },
   ];
 
-  const chartData = useMemo(() => buildChartSeries(history, timeframe), [history, timeframe, summary.netWorth]);
+  const chartData = useMemo(() => buildChartSeries(history, timeframe, summary.netWorth), [history, timeframe, summary.netWorth]);
 
   const trendDelta = useMemo(() => {
     if (chartData.length < 2) {
@@ -672,7 +701,7 @@ export default function HomePage() {
                               ) : null}
                               {symbolRequiredCategories.includes(card.category) ? (
                                 <p className="mt-1 text-[11px] text-slate-400">
-                                  持有 {formatCurrency(card.quantity)} 單位
+                                  持有 {formatCurrency(card.quantity)} 股
                                 </p>
                               ) : (
                                 <p className="mt-1 text-[11px] text-slate-400">
@@ -798,12 +827,12 @@ export default function HomePage() {
 
                       <FormItem>
                         <FormLabel htmlFor="quantity">
-                          {usesAmountInput ? "總金額 / 餘額" : "持有股數 / 數量"}
+                          {usesAmountInput ? "總金額" : "持有股數"}
                         </FormLabel>
                         <FormControl>
                           <Input
                             id="quantity"
-                            type="number"
+                            type="number" 
                             step="any"
                             value={formData.quantity}
                             onChange={(event) => setFormData({ ...formData, quantity: event.target.value })}
@@ -855,24 +884,6 @@ export default function HomePage() {
                               onChange={(event) => setFormData({ ...formData, deductionDate: event.target.value })}
                               placeholder="例如：15"
                             />
-                          </FormControl>
-                        </FormItem>
-                        <FormItem>
-                          <FormLabel htmlFor="deductFromAccountId">扣款來源帳戶</FormLabel>
-                          <FormControl>
-                            <select
-                              id="deductFromAccountId"
-                              value={formData.deductFromAccountId}
-                              onChange={(event) => setFormData({ ...formData, deductFromAccountId: event.target.value })}
-                              className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
-                            >
-                              <option value="">請選擇來源帳戶</option>
-                              {sourceAccounts.map((account) => (
-                                <option key={account.id} value={account.id}>
-                                  {account.name}
-                                </option>
-                              ))}
-                            </select>
                           </FormControl>
                         </FormItem>
                       </div>
