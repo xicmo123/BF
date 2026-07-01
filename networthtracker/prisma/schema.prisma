@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+}
+
+enum AccountCategory {
+  CASH
+  TAIWAN_STOCK
+  US_STOCK
+  CRYPTO
+  MORTGAGE
+  CAR_LOAN
+  CREDIT_LOAN
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  BUY
+  SELL
+  LOAN_PAYMENT
+  AUTO_DEDUCTION
+}
+
+enum Currency {
+  TWD
+  USD
+}
+
+model Account {
+  id            String          @id @default(cuid())
+  name          String
+  type          AccountType
+  category      AccountCategory
+  symbol        String?         // Stock symbol (e.g., "2330.TW", "AAPL") or crypto symbol (e.g., "BTC")
+  quantity      Float?          @default(0) // For stocks/crypto
+  currentPrice  Float?          @default(0) // Current market price
+  currentValue  Float           @default(0) // Calculated: quantity * currentPrice
+  currency      Currency        @default(TWD)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  transactions  Transaction[]
+  loanPayments  Transaction[]   @relation("LoanPayments")
+
+  @@index([type])
+  @@index([category])
+  @@index([isActive])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id])
+  type        TransactionType
+  amount      Float
+  quantity    Float?          // For stock/crypto transactions
+  price       Float?          // For stock/crypto transactions
+  description String?
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  loanAccountId String?        // For auto-deduction: which cash account to deduct from
+  loanAccount   Account?       @relation("LoanPayments", fields: [loanAccountId], references: [id])
+
+  @@index([accountId])
+  @@index([type])
+  @@index([date])
+}
+
+model AssetHistory {
+  id              String   @id @default(cuid())
+  date            DateTime @unique
+  totalAssets     Float
+  totalLiabilities Float
+  netWorth        Float
+  breakdown       String   // JSON string for detailed breakdown
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+}
