@@ -55,20 +55,8 @@ async function fetchMarketPrice(category: string, symbol: string) {
   return marketPrice
 }
 
-export async function GET() {
-  const accounts = await prisma.account.findMany({
-    where: {
-      isActive: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
-
-  return NextResponse.json(accounts)
-}
-
-export async function POST(request: Request) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const body = await request.json().catch(() => null)
 
   if (!body || typeof body !== "object") {
@@ -143,25 +131,31 @@ export async function POST(request: Request) {
     }
   }
 
-  let currentPriceValue = 1
-  let currentValueValue = quantityValue
+  const existingAccount = await prisma.account.findUnique({ where: { id } })
+  if (!existingAccount) {
+    return NextResponse.json({ message: "Account not found." }, { status: 404 })
+  }
+
+  let nextCurrentPrice = existingAccount.currentPrice ?? 0
+  let nextCurrentValue = quantityValue
 
   if (categoriesRequiringSymbol.includes(category)) {
     try {
       const fetchedPrice = await fetchMarketPrice(category, trimmedSymbol)
-      currentPriceValue = Number(fetchedPrice || 0)
-      currentValueValue = quantityValue * currentPriceValue
+      nextCurrentPrice = Number(fetchedPrice || 0)
+      nextCurrentValue = quantityValue * nextCurrentPrice
     } catch (error) {
-      console.error("Failed to fetch current market price for new account:", error)
-      currentPriceValue = 0
-      currentValueValue = 0
+      console.error("Failed to refresh market price for updated account:", error)
+      nextCurrentPrice = existingAccount.currentPrice ?? 0
+      nextCurrentValue = quantityValue * (existingAccount.currentPrice ?? 0)
     }
   } else if (fixedValueCategories.includes(category)) {
-    currentPriceValue = 1
-    currentValueValue = quantityValue
+    nextCurrentPrice = 1
+    nextCurrentValue = quantityValue
   }
 
-  const account = await prisma.account.create({
+  const updatedAccount = await prisma.account.update({
+    where: { id },
     data: {
       name: name.trim(),
       type: type as any,
@@ -169,13 +163,31 @@ export async function POST(request: Request) {
       symbol: trimmedSymbol || null,
       quantity: quantityValue,
       currency: currency as any,
-      currentPrice: currentPriceValue,
-      currentValue: currentValueValue,
+      currentPrice: nextCurrentPrice,
+      currentValue: nextCurrentValue,
       monthlyDeductionAmount: deductionAmountValue,
       deductionDate: deductionDateValue,
       deductFromAccountId: deductFromAccountId || null,
     },
   })
 
-  return NextResponse.json(account, { status: 201 })
+  return NextResponse.json(updatedAccount, { status: 200 })
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  const existingAccount = await prisma.account.findUnique({ where: { id } })
+  if (!existingAccount) {
+    return NextResponse.json({ message: "Account not found." }, { status: 404 })
+  }
+
+  const updatedAccount = await prisma.account.update({
+    where: { id },
+    data: {
+      isActive: false,
+    },
+  })
+
+  return NextResponse.json(updatedAccount, { status: 200 })
 }

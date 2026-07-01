@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,6 +128,8 @@ export default function HomePage() {
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [showForm, setShowForm] = useState(true);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const formSectionRef = useRef<HTMLDivElement | null>(null);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
   const usesAmountInput = amountInputCategories.includes(formData.category);
@@ -200,6 +202,34 @@ export default function HomePage() {
     }
   }
 
+  function resetForm() {
+    setFormData(defaultForm);
+    setEditingAccountId(null);
+    setShowForm(true);
+  }
+
+  function startEdit(account: Account) {
+    setFormData({
+      name: account.name,
+      type: account.type,
+      category: account.category,
+      symbol: account.symbol ?? "",
+      quantity: String(account.quantity ?? account.currentValue ?? 0),
+      currency: account.currency,
+      monthlyDeductionAmount: "",
+      deductionDate: "",
+      deductFromAccountId: "",
+    });
+    setEditingAccountId(account.id);
+    setShowForm(true);
+    setError(null);
+    setMessage(null);
+    setSyncMessage(null);
+    requestAnimationFrame(() => {
+      formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -226,46 +256,69 @@ export default function HomePage() {
       return;
     }
 
+    const parsedQuantity = Number(formData.quantity ?? 0);
+    if (Number.isNaN(parsedQuantity)) {
+      setError("數量/餘額必須是有效數字。");
+      return;
+    }
+
     const payload = {
       name: formData.name.trim(),
       type: formData.type,
       category: formData.category,
       symbol: formData.symbol.trim() || null,
-      quantity: Number(formData.quantity ?? 0),
+      quantity: parsedQuantity,
       currency: formData.currency,
       monthlyDeductionAmount: showDeductionFields ? Number(formData.monthlyDeductionAmount || 0) : null,
       deductionDate: showDeductionFields ? Number(formData.deductionDate || 0) : null,
       deductFromAccountId: showDeductionFields ? formData.deductFromAccountId || null : null,
     };
 
-    if (Number.isNaN(payload.quantity)) {
-      setError("數量/餘額必須是有效數字。" );
-      return;
-    }
-
     setLoading(true);
     try {
-      const response = await fetch("/api/accounts", {
-        method: "POST",
+      const response = await fetch(editingAccountId ? `/api/accounts/${editingAccountId}` : "/api/accounts", {
+        method: editingAccountId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(result?.message || "儲存失敗。" );
+        throw new Error(result?.message || "儲存失敗。");
       }
 
-      setMessage("已成功新增資產/負債。" );
-      setFormData(defaultForm);
-      setShowForm(false);
+      setMessage(editingAccountId ? "已成功更新帳戶。" : "已成功新增資產/負債。");
+      resetForm();
       await Promise.allSettled([fetchAccounts(), fetchHistory(), fetchTransactions()]);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "新增帳戶時發生錯誤。" );
+      setError(submitError instanceof Error ? submitError.message : "儲存帳戶時發生錯誤。");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(accountId: string) {
+    const confirmed = window.confirm("確定要刪除此項目嗎？");
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/accounts/${accountId}`, { method: "DELETE" });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(result?.message || "刪除失敗。");
+      }
+
+      setMessage("已成功刪除帳戶。");
+      if (editingAccountId === accountId) {
+        resetForm();
+      }
+      await Promise.allSettled([fetchAccounts(), fetchHistory(), fetchTransactions()]);
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "刪除帳戶時發生錯誤。");
     }
   }
 
@@ -430,13 +483,25 @@ export default function HomePage() {
                       {groupAccounts.map((account) => (
                         <div key={account.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                           <div className="flex items-start justify-between gap-3">
-                            <div>
+                            <div className="min-w-0 flex-1">
                               <p className="text-sm font-semibold text-slate-900">{account.name}</p>
                               <p className="mt-1 text-xs text-slate-500">{categoryLabelMap[account.category] ?? account.category}</p>
                             </div>
-                            <p className="text-sm font-semibold text-slate-900">
-                              NT$ {formatCurrency(Number(account.currentValue ?? 0))}
-                            </p>
+                            <div className="flex flex-col items-end gap-2">
+                              <p className="text-sm font-semibold text-slate-900">
+                                NT$ {formatCurrency(Number(account.currentValue ?? 0))}
+                              </p>
+                              <div className="flex items-center gap-1">
+                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => startEdit(account)}>
+                                  <Pencil className="mr-1 h-3.5 w-3.5" />
+                                  編輯
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-rose-600" onClick={() => void handleDelete(account.id)}>
+                                  <Trash2 className="mr-1 h-3.5 w-3.5" />
+                                  刪除
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -451,16 +516,17 @@ export default function HomePage() {
             <Card className="border-slate-200/80 bg-white/80 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>新增資產 / 負債</CardTitle>
-                  <CardDescription>建立帳戶、設定扣款與來源帳戶。</CardDescription>
+                  <CardTitle>{editingAccountId ? "編輯資產 / 負債" : "新增資產 / 負債"}</CardTitle>
+                  <CardDescription>{editingAccountId ? "調整名稱、金額或股數後儲存修改。" : "建立帳戶、設定扣款與來源帳戶。"}</CardDescription>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setShowForm((value) => !value)}>
                   {showForm ? "收合" : "展開"}
                 </Button>
               </CardHeader>
               {showForm ? (
-                <CardContent>
-                  <Form onSubmit={handleSubmit}>
+                <div ref={formSectionRef}>
+                  <CardContent>
+                    <Form onSubmit={handleSubmit}>
                     <FormItem>
                       <FormLabel htmlFor="name">名稱</FormLabel>
                       <FormControl>
@@ -539,7 +605,7 @@ export default function HomePage() {
 
                       <FormItem>
                         <FormLabel htmlFor="quantity">
-                          {usesAmountInput ? "總金額 / 餘額 (Amount)" : "持有股數 / 數量 (Quantity)"}
+                          {usesAmountInput ? "總金額" : "持有股數 "}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -622,13 +688,19 @@ export default function HomePage() {
                     {error ? <FormMessage className="mt-4">{error}</FormMessage> : null}
                     {message ? <p className="mt-4 text-sm text-emerald-600">{message}</p> : null}
 
-                    <CardFooter className="mt-4 flex justify-end border-t border-slate-200 px-0 pt-4">
-                      <Button type="submit" disabled={loading}>
-                        {loading ? "儲存中..." : "新增帳戶"}
-                      </Button>
-                    </CardFooter>
-                  </Form>
-                </CardContent>
+                      <CardFooter className="mt-4 flex justify-end gap-2 border-t border-slate-200 px-0 pt-4">
+                        {editingAccountId ? (
+                          <Button type="button" variant="outline" onClick={resetForm}>
+                            取消編輯
+                          </Button>
+                        ) : null}
+                        <Button type="submit" disabled={loading}>
+                          {loading ? "儲存中..." : editingAccountId ? "儲存修改" : "新增帳戶"}
+                        </Button>
+                      </CardFooter>
+                    </Form>
+                  </CardContent>
+                </div>
               ) : null}
             </Card>
 
