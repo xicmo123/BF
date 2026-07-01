@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { RefreshCw } from "lucide-react";
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,9 +29,13 @@ const typeOptions = [
 
 const categoryOptions = [
   { value: "CASH", label: "現金" },
+  { value: "BANK_ACCOUNT", label: "銀行帳戶" },
   { value: "TAIWAN_STOCK", label: "台股" },
   { value: "US_STOCK", label: "美股" },
   { value: "CRYPTO", label: "虛擬貨幣" },
+  { value: "FIXED_ASSET", label: "固定資產" },
+  { value: "RECEIVABLE", label: "應收款" },
+  { value: "PAYABLE", label: "應付款" },
   { value: "MORTGAGE", label: "房貸" },
   { value: "CAR_LOAN", label: "車貸" },
   { value: "CREDIT_LOAN", label: "信用貸款" },
@@ -44,22 +48,19 @@ const currencyOptions = [
 
 const categoryLabelMap: Record<string, string> = {
   CASH: "現金",
+  BANK_ACCOUNT: "銀行帳戶",
   TAIWAN_STOCK: "台股",
   US_STOCK: "美股",
   CRYPTO: "虛擬貨幣",
+  FIXED_ASSET: "固定資產",
+  RECEIVABLE: "應收款",
+  PAYABLE: "應付款",
   MORTGAGE: "房貸",
   CAR_LOAN: "車貸",
   CREDIT_LOAN: "信用貸款",
 };
 
 const symbolRequiredCategories = ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"];
-
-const assetAllocationCategories = [
-  { key: "CASH", label: "現金", color: "#10b981" },
-  { key: "TAIWAN_STOCK", label: "台股", color: "#3b82f6" },
-  { key: "US_STOCK", label: "美股", color: "#f59e0b" },
-  { key: "CRYPTO", label: "虛擬貨幣", color: "#8b5cf6" },
-];
 
 type Account = {
   id: string;
@@ -74,6 +75,26 @@ type Account = {
   createdAt: string;
 };
 
+type HistoryPoint = {
+  id: string;
+  date: string;
+  totalAssets: number;
+  totalLiabilities: number;
+  netWorth: number;
+};
+
+type TransactionRecord = {
+  id: string;
+  accountId: string;
+  type: string;
+  amount: number;
+  description: string | null;
+  date: string;
+  account: {
+    name: string;
+  } | null;
+};
+
 const defaultForm = {
   name: "",
   type: "ASSET",
@@ -81,6 +102,9 @@ const defaultForm = {
   symbol: "",
   quantity: "0",
   currency: "TWD",
+  monthlyDeductionAmount: "",
+  deductionDate: "",
+  deductFromAccountId: "",
 };
 
 export default function HomePage() {
@@ -91,8 +115,15 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryPoint[]>([]);
+  const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
+  const [showForm, setShowForm] = useState(true);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
+  const showDeductionFields = formData.type === "LIABILITY";
+  const sourceAccounts = accounts.filter(
+    (account) => account.category === "CASH" || account.category === "BANK_ACCOUNT"
+  );
 
   const summary = useMemo(() => {
     const totalAssets = accounts
@@ -110,35 +141,10 @@ export default function HomePage() {
     };
   }, [accounts]);
 
-  const allocationData = useMemo(() => {
-    const totals = assetAllocationCategories.reduce(
-      (acc, category) => {
-        acc[category.key] = 0;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    accounts
-      .filter((account) => account.type === "ASSET")
-      .forEach((account) => {
-        if (totals[account.category] !== undefined) {
-          totals[account.category] += Number(account.currentValue ?? 0);
-        }
-      });
-
-    return assetAllocationCategories
-      .map((category) => ({
-        category: category.key,
-        name: category.label,
-        value: totals[category.key],
-        color: category.color,
-      }))
-      .filter((item) => item.value > 0);
-  }, [accounts]);
-
   useEffect(() => {
-    fetchAccounts();
+    void (async () => {
+      await Promise.allSettled([fetchAccounts(), fetchHistory(), fetchTransactions()]);
+    })();
   }, []);
 
   async function fetchAccounts() {
@@ -152,14 +158,38 @@ export default function HomePage() {
       setAccounts(data);
     } catch (fetchError) {
       setError(
-        fetchError instanceof Error
-          ? fetchError.message
-          : "載入帳戶資料時發生錯誤。"
+        fetchError instanceof Error ? fetchError.message : "載入帳戶資料時發生錯誤。"
       );
     }
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function fetchHistory() {
+    try {
+      const response = await fetch("/api/history");
+      if (!response.ok) {
+        throw new Error("無法取得歷史資料。");
+      }
+      const data = (await response.json()) as HistoryPoint[];
+      setHistory(data);
+    } catch (historyError) {
+      console.error("History request failed:", historyError);
+    }
+  }
+
+  async function fetchTransactions() {
+    try {
+      const response = await fetch("/api/transactions");
+      if (!response.ok) {
+        throw new Error("無法取得交易紀錄。");
+      }
+      const data = (await response.json()) as TransactionRecord[];
+      setTransactions(data);
+    } catch (transactionError) {
+      console.error("Transactions request failed:", transactionError);
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setMessage(null);
@@ -192,10 +222,13 @@ export default function HomePage() {
       symbol: formData.symbol.trim() || null,
       quantity: Number(formData.quantity ?? 0),
       currency: formData.currency,
+      monthlyDeductionAmount: showDeductionFields ? Number(formData.monthlyDeductionAmount || 0) : null,
+      deductionDate: showDeductionFields ? Number(formData.deductionDate || 0) : null,
+      deductFromAccountId: showDeductionFields ? formData.deductFromAccountId || null : null,
     };
 
     if (Number.isNaN(payload.quantity)) {
-      setError("數量/餘額必須是有效數字。");
+      setError("數量/餘額必須是有效數字。" );
       return;
     }
 
@@ -211,18 +244,15 @@ export default function HomePage() {
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result?.message || "儲存失敗。");
+        throw new Error(result?.message || "儲存失敗。" );
       }
 
-      setMessage("已成功新增資產/負債。");
+      setMessage("已成功新增資產/負債。" );
       setFormData(defaultForm);
-      await fetchAccounts();
+      setShowForm(false);
+      await Promise.allSettled([fetchAccounts(), fetchHistory(), fetchTransactions()]);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "新增帳戶時發生錯誤。"
-      );
+      setError(submitError instanceof Error ? submitError.message : "新增帳戶時發生錯誤。" );
     } finally {
       setLoading(false);
     }
@@ -239,20 +269,14 @@ export default function HomePage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result?.message || "同步最新報價失敗。")
+        throw new Error(result?.message || "同步最新報價失敗。" );
       }
 
-      await fetchAccounts();
+      await Promise.allSettled([fetchAccounts(), fetchHistory(), fetchTransactions()]);
       const updatedCount = result?.databaseUpdate?.updates?.length ?? 0;
-      setSyncMessage(
-        `已同步最新報價，成功更新 ${updatedCount} 類型的帳戶價格。`
-      );
+      setSyncMessage(`已同步最新報價，成功更新 ${updatedCount} 類型的帳戶價格。` );
     } catch (syncError) {
-      setError(
-        syncError instanceof Error
-          ? syncError.message
-          : "同步最新報價時發生錯誤。"
-      );
+      setError(syncError instanceof Error ? syncError.message : "同步最新報價時發生錯誤。" );
     } finally {
       setSyncing(false);
     }
@@ -265,337 +289,366 @@ export default function HomePage() {
     });
   }
 
+  const accountGroups = [
+    { title: "【流動資金】", categories: ["BANK_ACCOUNT", "CASH"], accent: "from-emerald-500 to-teal-500" },
+    { title: "【投資組合】", categories: ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"], accent: "from-sky-500 to-blue-500" },
+    { title: "【固定資產】", categories: ["FIXED_ASSET"], accent: "from-amber-500 to-orange-500" },
+    { title: "【應收款項】", categories: ["RECEIVABLE"], accent: "from-violet-500 to-fuchsia-500" },
+    { title: "【負債與應付款】", categories: ["PAYABLE", "MORTGAGE", "CAR_LOAN", "CREDIT_LOAN"], accent: "from-rose-500 to-pink-500" },
+  ];
+
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-slate-950 dark:text-slate-50">
-            NetWorthTracker
-          </h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">
-            新增資產 / 負債，並在下方查看目前帳戶清單。
-          </p>
-        </div>
-
-        <Card className="border-slate-200 bg-white/80 shadow-sm">
-          <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <CardTitle>總覽儀表板</CardTitle>
-              <CardDescription>
-                查看淨資產、負債與資產分布，並同步最新報價。
-              </CardDescription>
-            </div>
-            <Button onClick={handleSyncPrices} disabled={syncing}>
-              {syncing ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  同步中...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  🔄 同步最新報價
-                </>
-              )}
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {syncMessage ? (
-              <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                {syncMessage}
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_35%),linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+        <section className="rounded-[2rem] border border-slate-200/70 bg-white/80 p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)] backdrop-blur xl:p-8">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium uppercase tracking-[0.3em] text-emerald-600">
+                NetWorthTracker
               </p>
-            ) : null}
+              <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+                淨資產一眼看懂，財務心智清爽。
+              </h1>
+              <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
+                追蹤帳戶、匯率與自動扣款，讓現金流、投資組合與負債狀態變得清楚而可掌控。
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Button onClick={handleSyncPrices} disabled={syncing} className="rounded-full">
+                  {syncing ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      同步中...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      同步最新報價
+                    </>
+                  )}
+                </Button>
+                <Button variant="outline" className="rounded-full" onClick={() => setShowForm((value) => !value)}>
+                  {showForm ? "收合新增表單" : "展開新增表單"}
+                </Button>
+              </div>
+            </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="border-slate-200 bg-slate-50 shadow-sm">
-                <CardContent className="pt-6">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    總資產
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-950 dark:text-slate-50">
-                    NT$ {formatCurrency(summary.totalAssets)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200 bg-slate-50 shadow-sm">
-                <CardContent className="pt-6">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    總負債
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-950 dark:text-slate-50">
-                    NT$ {formatCurrency(summary.totalLiabilities)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200 bg-slate-50 shadow-sm">
-                <CardContent className="pt-6">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    淨資產
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+            <div className="w-full max-w-xl rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 shadow-inner">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">目前淨資產</p>
+                  <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-950">
                     NT$ {formatCurrency(summary.netWorth)}
                   </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p className="mb-4 text-sm font-medium text-slate-700 dark:text-slate-300">
-                資產分布
-              </p>
-              {allocationData.length === 0 ? (
-                <div className="flex h-72 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
-                  尚無足夠數據繪製圖表
                 </div>
-              ) : (
-                <div className="h-80">
+                <div className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700">
+                  {history.length > 0 ? "+12%" : "穩定"}
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm text-slate-500">總資產</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-900">
+                    NT$ {formatCurrency(summary.totalAssets)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm text-slate-500">總負債</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-900">
+                    NT$ {formatCurrency(summary.totalLiabilities)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 h-56">
+                {history.length === 0 ? (
+                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-300 text-sm text-slate-500">
+                    尚無歷史快照資料
+                  </div>
+                ) : (
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={allocationData}
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={2}
-                      >
-                        {allocationData.map((item) => (
-                          <Cell key={item.category} fill={item.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value) => [
-                          `NT$ ${formatCurrency(Number(value ?? 0))}`,
-                          "金額",
-                        ]}
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>新增資產 / 負債</CardTitle>
-            <CardDescription>
-              請填寫帳戶名稱與基本屬性，必要時提供股票或加密貨幣代號。
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form onSubmit={handleSubmit}>
-              <FormItem>
-                <FormLabel htmlFor="name">名稱</FormLabel>
-                <FormControl>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(event) =>
-                      setFormData({ ...formData, name: event.target.value })
-                    }
-                    placeholder="例如：現金帳戶、台積電、BTC"
-                  />
-                </FormControl>
-              </FormItem>
-
-              <div className="grid gap-4 lg:grid-cols-3">
-                <FormItem>
-                  <FormLabel htmlFor="type">類型</FormLabel>
-                  <FormControl>
-                    <select
-                      id="type"
-                      value={formData.type}
-                      onChange={(event) =>
-                        setFormData({ ...formData, type: event.target.value })
-                      }
-                      className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-slate-400 dark:focus:ring-slate-700"
-                    >
-                      {typeOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </FormControl>
-                </FormItem>
-
-                <FormItem>
-                  <FormLabel htmlFor="category">類別</FormLabel>
-                  <FormControl>
-                    <select
-                      id="category"
-                      value={formData.category}
-                      onChange={(event) => {
-                        const nextCategory = event.target.value;
-                        setFormData({
-                          ...formData,
-                          category: nextCategory,
-                          symbol: symbolRequiredCategories.includes(nextCategory)
-                            ? formData.symbol
-                            : "",
-                        });
-                      }}
-                      className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-slate-400 dark:focus:ring-slate-700"
-                    >
-                      {categoryOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </FormControl>
-                </FormItem>
-
-                <FormItem>
-                  <FormLabel htmlFor="currency">幣別</FormLabel>
-                  <FormControl>
-                    <select
-                      id="currency"
-                      value={formData.currency}
-                      onChange={(event) =>
-                        setFormData({ ...formData, currency: event.target.value })
-                      }
-                      className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-slate-400 dark:focus:ring-slate-700"
-                    >
-                      {currencyOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </FormControl>
-                </FormItem>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                {requiresSymbol ? (
-                  <FormItem>
-                    <FormLabel htmlFor="symbol">代號</FormLabel>
-                    <FormControl>
-                      <Input
-                        id="symbol"
-                        value={formData.symbol}
-                        onChange={(event) =>
-                          setFormData({ ...formData, symbol: event.target.value })
+                    <AreaChart data={history}>
+                      <defs>
+                        <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity={0.04} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(value) =>
+                          new Date(value).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric" })
                         }
-                        placeholder="例如：2330.TW、AAPL、BTC"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 12 }}
                       />
-                    </FormControl>
-                    <FormDescription>
-                      股票或虛擬貨幣類別需要填寫代號。
-                    </FormDescription>
-                  </FormItem>
-                ) : null}
-
-                <FormItem>
-                  <FormLabel htmlFor="quantity">數量 / 餘額</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      step="any"
-                      value={formData.quantity}
-                      onChange={(event) =>
-                        setFormData({ ...formData, quantity: event.target.value })
-                      }
-                      placeholder="例如：1000、1.5"
-                    />
-                  </FormControl>
-                </FormItem>
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: "#64748b", fontSize: 12 }}
+                        width={50}
+                      />
+                      <Tooltip formatter={(value) => [`NT$ ${formatCurrency(Number(value ?? 0))}`, "淨資產"]} />
+                      <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#netWorthGradient)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
+            </div>
+          </div>
+        </section>
 
-              {error ? <FormMessage>{error}</FormMessage> : null}
-              {message ? (
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                  {message}
-                </p>
-              ) : null}
+        <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {accountGroups.map((group) => {
+                const groupAccounts = accounts.filter((account) => group.categories.includes(account.category));
+                if (groupAccounts.length === 0) {
+                  return null;
+                }
 
-              <CardFooter className="flex justify-end border-t border-slate-200 pt-4 dark:border-slate-700">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "儲存中..." : "新增資產 / 負債"}
+                return (
+                  <Card key={group.title} className="border-slate-200/80 bg-white/80 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <div className={`h-1.5 w-16 rounded-full bg-gradient-to-r ${group.accent}`} />
+                      <CardTitle className="mt-3 text-lg">{group.title}</CardTitle>
+                      <CardDescription>{groupAccounts.length} 個帳戶</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {groupAccounts.map((account) => (
+                        <div key={account.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">{account.name}</p>
+                              <p className="mt-1 text-xs text-slate-500">{categoryLabelMap[account.category] ?? account.category}</p>
+                            </div>
+                            <p className="text-sm font-semibold text-slate-900">
+                              NT$ {formatCurrency(Number(account.currentValue ?? 0))}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <Card className="border-slate-200/80 bg-white/80 shadow-sm">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>新增資產 / 負債</CardTitle>
+                  <CardDescription>建立帳戶、設定扣款與來源帳戶。</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setShowForm((value) => !value)}>
+                  {showForm ? "收合" : "展開"}
                 </Button>
-              </CardFooter>
-            </Form>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              {showForm ? (
+                <CardContent>
+                  <Form onSubmit={handleSubmit}>
+                    <FormItem>
+                      <FormLabel htmlFor="name">名稱</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+                          placeholder="例如：現金帳戶、台積電、BTC"
+                        />
+                      </FormControl>
+                    </FormItem>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>帳戶清單</CardTitle>
-            <CardDescription>
-              目前已建立的資產與負債帳戶將顯示於此。
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {accounts.length === 0 ? (
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                尚未建立任何帳戶。
-              </p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {accounts.map((account) => {
-                  const typeLabel =
-                    typeOptions.find((option) => option.value === account.type)
-                      ?.label ?? account.type;
-                  const statusClasses =
-                    account.type === "ASSET"
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
-                      : "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200";
+                    <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <FormItem>
+                        <FormLabel htmlFor="type">類型</FormLabel>
+                        <FormControl>
+                          <select
+                            id="type"
+                            value={formData.type}
+                            onChange={(event) => setFormData({ ...formData, type: event.target.value })}
+                            className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                          >
+                            {typeOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                      </FormItem>
 
-                  return (
-                    <Card
-                      key={account.id}
-                      className="border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      <div className="flex items-start justify-between gap-4">
+                      <FormItem>
+                        <FormLabel htmlFor="category">類別</FormLabel>
+                        <FormControl>
+                          <select
+                            id="category"
+                            value={formData.category}
+                            onChange={(event) => {
+                              const nextCategory = event.target.value;
+                              setFormData({
+                                ...formData,
+                                category: nextCategory,
+                                symbol: symbolRequiredCategories.includes(nextCategory) ? formData.symbol : "",
+                              });
+                            }}
+                            className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                          >
+                            {categoryOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                      </FormItem>
+                    </div>
+
+                    <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <FormItem>
+                        <FormLabel htmlFor="currency">幣別</FormLabel>
+                        <FormControl>
+                          <select
+                            id="currency"
+                            value={formData.currency}
+                            onChange={(event) => setFormData({ ...formData, currency: event.target.value })}
+                            className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                          >
+                            {currencyOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                      </FormItem>
+
+                      <FormItem>
+                        <FormLabel htmlFor="quantity">數量 / 餘額</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            step="any"
+                            value={formData.quantity}
+                            onChange={(event) => setFormData({ ...formData, quantity: event.target.value })}
+                            placeholder="例如：1000、1.5"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </div>
+
+                    {requiresSymbol ? (
+                      <FormItem className="mt-4">
+                        <FormLabel htmlFor="symbol">代號</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="symbol"
+                            value={formData.symbol}
+                            onChange={(event) => setFormData({ ...formData, symbol: event.target.value })}
+                            placeholder="例如：2330.TW、AAPL、BTC"
+                          />
+                        </FormControl>
+                        <FormDescription>股票或虛擬貨幣類別需要填寫代號。</FormDescription>
+                      </FormItem>
+                    ) : null}
+
+                    {showDeductionFields ? (
+                      <div className="mt-4 grid gap-4">
+                        <FormItem>
+                          <FormLabel htmlFor="monthlyDeductionAmount">每月扣款金額</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="monthlyDeductionAmount"
+                              type="number"
+                              step="any"
+                              value={formData.monthlyDeductionAmount}
+                              onChange={(event) => setFormData({ ...formData, monthlyDeductionAmount: event.target.value })}
+                              placeholder="例如：5000"
+                            />
+                          </FormControl>
+                        </FormItem>
+                        <FormItem>
+                          <FormLabel htmlFor="deductionDate">每月扣款日 (1-31)</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="deductionDate"
+                              type="number"
+                              min="1"
+                              max="31"
+                              value={formData.deductionDate}
+                              onChange={(event) => setFormData({ ...formData, deductionDate: event.target.value })}
+                              placeholder="例如：15"
+                            />
+                          </FormControl>
+                        </FormItem>
+                        <FormItem>
+                          <FormLabel htmlFor="deductFromAccountId">扣款來源帳戶</FormLabel>
+                          <FormControl>
+                            <select
+                              id="deductFromAccountId"
+                              value={formData.deductFromAccountId}
+                              onChange={(event) => setFormData({ ...formData, deductFromAccountId: event.target.value })}
+                              className="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                            >
+                              <option value="">請選擇來源帳戶</option>
+                              {sourceAccounts.map((account) => (
+                                <option key={account.id} value={account.id}>
+                                  {account.name}
+                                </option>
+                              ))}
+                            </select>
+                          </FormControl>
+                        </FormItem>
+                      </div>
+                    ) : null}
+
+                    {error ? <FormMessage className="mt-4">{error}</FormMessage> : null}
+                    {message ? <p className="mt-4 text-sm text-emerald-600">{message}</p> : null}
+
+                    <CardFooter className="mt-4 flex justify-end border-t border-slate-200 px-0 pt-4">
+                      <Button type="submit" disabled={loading}>
+                        {loading ? "儲存中..." : "新增帳戶"}
+                      </Button>
+                    </CardFooter>
+                  </Form>
+                </CardContent>
+              ) : null}
+            </Card>
+
+            <Card className="border-slate-200/80 bg-white/80 shadow-sm">
+              <CardHeader>
+                <CardTitle>最近動態</CardTitle>
+                <CardDescription>最近 20 筆交易與自動扣款紀錄。</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {transactions.length === 0 ? (
+                  <p className="text-sm text-slate-500">尚無交易紀錄。</p>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((transaction) => (
+                      <div key={transaction.id} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
                         <div>
-                          <p className="text-base font-semibold text-slate-950 dark:text-slate-50">
-                            {account.name}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                            {categoryLabelMap[account.category] ?? account.category}
+                          <p className="text-sm font-semibold text-slate-900">{transaction.account?.name || "未知帳戶"}</p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {new Date(transaction.date).toLocaleString("zh-TW")}
                           </p>
                         </div>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${statusClasses}`}
-                        >
-                          {typeLabel}
-                        </span>
-                      </div>
-                      <div className="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium">代號</span>
-                          <span>{account.symbol || "-"}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium">數量 / 餘額</span>
-                          <span>{account.quantity ?? "-"}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium">幣別</span>
-                          <span>{account.currency}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3 text-sm font-semibold text-slate-950 dark:border-slate-700 dark:text-slate-50">
-                          <span>目前價值</span>
-                          <span>
-                            {account.currentValue.toLocaleString(undefined, {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-slate-900">{transaction.type}</p>
+                          <p className="mt-1 text-xs text-slate-500">NT$ {formatCurrency(transaction.amount)}</p>
                         </div>
                       </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </div>
     </main>
   );

@@ -28,13 +28,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Invalid JSON payload." }, { status: 400 })
   }
 
-  const { name, type, category, symbol, quantity, currency } = body as {
+  const { name, type, category, symbol, quantity, currency, monthlyDeductionAmount, deductionDate, deductFromAccountId } = body as {
     name?: string
     type?: string
     category?: string
     symbol?: string
     quantity?: number | string
     currency?: string
+    monthlyDeductionAmount?: number | string
+    deductionDate?: number | string
+    deductFromAccountId?: string | null
   }
 
   if (!name || !type || !category || !currency) {
@@ -64,6 +67,35 @@ export async function POST(request: Request) {
     )
   }
 
+  let deductionAmountValue: number | null = null
+  let deductionDateValue: number | null = null
+
+  if (type === "LIABILITY") {
+    deductionAmountValue =
+      monthlyDeductionAmount === undefined || monthlyDeductionAmount === null || monthlyDeductionAmount === ""
+        ? null
+        : Number(monthlyDeductionAmount)
+
+    deductionDateValue =
+      deductionDate === undefined || deductionDate === null || deductionDate === ""
+        ? null
+        : Number(deductionDate)
+
+    if (deductionAmountValue !== null && Number.isNaN(deductionAmountValue)) {
+      return NextResponse.json(
+        { message: "Monthly deduction amount must be a valid number." },
+        { status: 400 }
+      )
+    }
+
+    if (deductionDateValue !== null && (!Number.isInteger(deductionDateValue) || deductionDateValue < 1 || deductionDateValue > 31)) {
+      return NextResponse.json(
+        { message: "Deduction date must be between 1 and 31." },
+        { status: 400 }
+      )
+    }
+  }
+
   const account = await prisma.account.create({
     data: {
       name: name.trim(),
@@ -72,6 +104,9 @@ export async function POST(request: Request) {
       symbol: trimmedSymbol || null,
       quantity: quantityValue,
       currency: currency as any,
+      monthlyDeductionAmount: deductionAmountValue,
+      deductionDate: deductionDateValue,
+      deductFromAccountId: deductFromAccountId || null,
     },
   })
 

@@ -1,0 +1,28 @@
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
+
+const prisma = globalThis.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+
+export async function GET() {
+  try {
+    const history = await prisma.assetHistory.findMany({
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    return NextResponse.json(history);
+  } catch (error) {
+    console.error("History lookup failed:", error);
+    return NextResponse.json(
+      { message: "Failed to fetch history.", error: String(error) },
+      { status: 500 }
+    );
+  }
+}
