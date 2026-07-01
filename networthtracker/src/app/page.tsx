@@ -354,6 +354,10 @@ export default function HomePage() {
     });
   }
 
+  function formatPercent(value: number) {
+    return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+  }
+
   function buildFallbackHistory(currentNetWorth: number) {
     const base = Math.max(1000, Number(currentNetWorth || 10000));
     return Array.from({ length: 7 }, (_, index) => {
@@ -429,6 +433,21 @@ export default function HomePage() {
   ];
 
   const chartData = useMemo(() => buildChartSeries(history, timeframe), [history, timeframe, summary.netWorth]);
+
+  const trendDelta = useMemo(() => {
+    if (chartData.length < 2) {
+      return 0;
+    }
+
+    const firstValue = Number(chartData[0]?.netWorth ?? 0);
+    const lastValue = Number(chartData[chartData.length - 1]?.netWorth ?? 0);
+
+    if (!firstValue) {
+      return 0;
+    }
+
+    return ((lastValue - firstValue) / firstValue) * 100;
+  }, [chartData]);
 
   const renderedAccountGroups = useMemo(() => {
     return accountGroups
@@ -535,7 +554,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700">
-                  {history.length > 0 ? "+12%" : "穩定"}
+                  {trendDelta === 0 ? "穩定" : formatPercent(trendDelta)}
                 </div>
               </div>
 
@@ -603,6 +622,12 @@ export default function HomePage() {
 
         <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-6">
+            {renderedAccountGroups.length === 0 ? (
+              <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-500 shadow-sm">
+                目前還沒有任何資產，先新增第一筆就能開始看見你的財務視覺化。
+              </div>
+            ) : null}
+
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {renderedAccountGroups.map((group) => {
                 if (!group) {
@@ -626,6 +651,15 @@ export default function HomePage() {
                               {card.accountCount > 1 ? (
                                 <p className="mt-1 text-[11px] text-slate-400">已合併 {card.accountCount} 個相同名稱帳戶</p>
                               ) : null}
+                              {symbolRequiredCategories.includes(card.category) ? (
+                                <p className="mt-1 text-[11px] text-slate-400">
+                                  持有 {formatCurrency(card.quantity)} 單位 · 現價 NT$ {formatCurrency(Number(card.account.currentPrice ?? 0))}
+                                </p>
+                              ) : (
+                                <p className="mt-1 text-[11px] text-slate-400">
+                                  餘額 NT$ {formatCurrency(Number(card.currentValue ?? 0))}
+                                </p>
+                              )}
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               <p className="text-sm font-semibold text-slate-900">
@@ -851,7 +885,9 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 {transactions.length === 0 ? (
-                  <p className="text-sm text-slate-500">尚無交易紀錄。</p>
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
+                    尚無交易紀錄，新增帳戶後即可開始累積活動流。
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {transactions.map((transaction) => (
