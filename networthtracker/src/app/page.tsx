@@ -130,6 +130,7 @@ export default function HomePage() {
   const [showForm, setShowForm] = useState(true);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [timeframe, setTimeframe] = useState<"day" | "month" | "quarter" | "year">("day");
+  const [mounted, setMounted] = useState(false);
   const formSectionRef = useRef<HTMLDivElement | null>(null);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
@@ -154,6 +155,10 @@ export default function HomePage() {
       netWorth: totalAssets - totalLiabilities,
     };
   }, [accounts]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -459,32 +464,40 @@ export default function HomePage() {
 
         const isInvestmentGroup = group.categories.some((category) => symbolRequiredCategories.includes(category));
 
-        if (isInvestmentGroup) {
-          return {
-            ...group,
-            cards: relevantAccounts.map((account) => ({
-              id: account.id,
-              name: account.name,
-              category: account.category,
-              account,
-              label: `${categoryLabelMap[account.category] ?? account.category}${account.symbol ? ` · ${account.symbol}` : ""}`,
-              quantity: Number(account.quantity ?? 0),
-              currentValue: Number(account.currentValue ?? 0),
-              accountCount: 1,
-            })),
-          };
-        }
-
         const groupedCards = Object.values(
-          relevantAccounts.reduce<Record<string, { id: string; name: string; category: string; label: string; quantity: number; currentValue: number; accountCount: number; account: Account }>>(
+          relevantAccounts.reduce<Record<string, { id: string; title: string; subtitle: string; category: string; quantity: number; currentValue: number; accountCount: number; account: Account }>>(
             (result, account) => {
+              if (isInvestmentGroup) {
+                const symbol = (account.symbol || account.name || "").trim().toUpperCase();
+                const accountName = account.name.trim();
+                const key = `${symbol}::${accountName}`;
+
+                if (!result[key]) {
+                  result[key] = {
+                    id: `investment-${key}`,
+                    title: symbol,
+                    subtitle: accountName,
+                    category: account.category,
+                    quantity: 0,
+                    currentValue: 0,
+                    accountCount: 0,
+                    account,
+                  };
+                }
+
+                result[key].quantity += Number(account.quantity ?? 0);
+                result[key].currentValue += Number(account.currentValue ?? 0);
+                result[key].accountCount += 1;
+                return result;
+              }
+
               const key = account.name.trim().toLowerCase();
               if (!result[key]) {
                 result[key] = {
                   id: `group-${key}`,
-                  name: account.name,
+                  title: account.name,
+                  subtitle: categoryLabelMap[account.category] ?? account.category,
                   category: account.category,
-                  label: categoryLabelMap[account.category] ?? account.category,
                   quantity: 0,
                   currentValue: 0,
                   accountCount: 0,
@@ -495,7 +508,9 @@ export default function HomePage() {
               result[key].quantity += Number(account.quantity ?? 0);
               result[key].currentValue += Number(account.currentValue ?? 0);
               result[key].accountCount += 1;
-              result[key].label = result[key].accountCount > 1 ? `${result[key].label} · 多筆同名帳戶` : result[key].label;
+              if (result[key].accountCount > 1) {
+                result[key].subtitle = `${categoryLabelMap[account.category] ?? account.category} · 多筆同名帳戶`;
+              }
               return result;
             },
             {}
@@ -589,31 +604,35 @@ export default function HomePage() {
                     ))}
                   </div>
                 </div>
-                <div className="h-56">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
-                          <stop offset="100%" stopColor="#10b981" stopOpacity={0.04} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="label"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: "#64748b", fontSize: 12 }}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: "#64748b", fontSize: 12 }}
-                        width={50}
-                      />
-                      <Tooltip formatter={(value) => [`NT$ ${formatCurrency(Number(value ?? 0))}`, "淨資產"]} />
-                      <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#netWorthGradient)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                <div className="h-[300px]">
+                  {mounted ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData}>
+                        <defs>
+                          <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.04} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis
+                          dataKey="label"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#64748b", fontSize: 12 }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#64748b", fontSize: 12 }}
+                          width={50}
+                        />
+                        <Tooltip formatter={(value) => [`NT$ ${formatCurrency(Number(value ?? 0))}`, "淨資產"]} />
+                        <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#netWorthGradient)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-[300px]" />
+                  )}
                 </div>
               </div>
             </div>
@@ -646,18 +665,18 @@ export default function HomePage() {
                         <div key={card.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold text-slate-900">{card.name}</p>
-                              <p className="mt-1 text-xs text-slate-500">{card.label}</p>
+                              <p className="text-sm font-semibold text-slate-900">{card.title}</p>
+                              <p className="mt-1 text-xs text-slate-500">{card.subtitle}</p>
                               {card.accountCount > 1 ? (
-                                <p className="mt-1 text-[11px] text-slate-400">已合併 {card.accountCount} 個相同名稱帳戶</p>
+                                <p className="mt-1 text-[11px] text-slate-400">已合併 {card.accountCount} 筆相同標的與帳戶</p>
                               ) : null}
                               {symbolRequiredCategories.includes(card.category) ? (
                                 <p className="mt-1 text-[11px] text-slate-400">
-                                  持有 {formatCurrency(card.quantity)} 單位 · 現價 NT$ {formatCurrency(Number(card.account.currentPrice ?? 0))}
+                                  持有 {formatCurrency(card.quantity)} 單位
                                 </p>
                               ) : (
                                 <p className="mt-1 text-[11px] text-slate-400">
-                                  餘額 NT$ {formatCurrency(Number(card.currentValue ?? 0))}
+                                  餘額 {formatCurrency(card.quantity)}
                                 </p>
                               )}
                             </div>
