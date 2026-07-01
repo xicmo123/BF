@@ -33,17 +33,26 @@ export async function GET() {
     console.error(errorMsg);
   }
 
+  let usdToTwdRate = 1;
+
   try {
-    // 2. 測試美股：AAPL (蘋果)
-    console.log('Fetching US Stock: AAPL');
+    // 2. 抓取 USD/TWD 匯率與美股：AAPL (蘋果)
+    console.log('Fetching USD/TWD rate and US Stock: AAPL');
     const yahoo = new yahooFinance();
-    const usStockResult = await yahoo.quote('AAPL');
+    const [usdToTwdResult, usStockResult] = await Promise.all([
+      yahoo.quote('TWD=X'),
+      yahoo.quote('AAPL'),
+    ]);
+
+    usdToTwdRate = Number(usdToTwdResult.regularMarketPrice || 1);
+
     results.usStock = {
       symbol: usStockResult.symbol,
       name: usStockResult.longName,
       price: usStockResult.regularMarketPrice,
       currency: usStockResult.currency,
       marketCap: usStockResult.marketCap,
+      usdToTwdRate,
     };
     console.log('US Stock fetched:', results.usStock);
   } catch (error) {
@@ -111,7 +120,7 @@ export async function GET() {
       updates.push({ symbol: '2330.TW', updatedCount: accounts.length });
     }
     
-    // 更新美股價格
+    // 更新美股價格（換算為台幣）
     if (results.usStock?.price) {
       const accounts = await prisma.account.findMany({
         where: {
@@ -121,11 +130,12 @@ export async function GET() {
       });
       
       for (const account of accounts) {
-        const currentValue = (account.quantity || 0) * results.usStock.price;
+        const currentPriceTwd = Number(results.usStock.price) * Number(usdToTwdRate || 1);
+        const currentValue = (account.quantity || 0) * currentPriceTwd;
         await prisma.account.update({
           where: { id: account.id },
           data: {
-            currentPrice: results.usStock.price,
+            currentPrice: currentPriceTwd,
             currentValue,
           },
         });
@@ -133,7 +143,7 @@ export async function GET() {
       updates.push({ symbol: 'AAPL', updatedCount: accounts.length });
     }
     
-    // 更新 BTC 價格
+    // 更新 BTC 價格（換算為台幣）
     if (results.crypto?.bitcoin?.price) {
       const accounts = await prisma.account.findMany({
         where: {
@@ -143,11 +153,12 @@ export async function GET() {
       });
       
       for (const account of accounts) {
-        const currentValue = (account.quantity || 0) * results.crypto.bitcoin.price;
+        const currentPriceTwd = Number(results.crypto.bitcoin.price) * Number(usdToTwdRate || 1);
+        const currentValue = (account.quantity || 0) * currentPriceTwd;
         await prisma.account.update({
           where: { id: account.id },
           data: {
-            currentPrice: results.crypto.bitcoin.price,
+            currentPrice: currentPriceTwd,
             currentValue,
           },
         });
@@ -155,7 +166,7 @@ export async function GET() {
       updates.push({ symbol: 'BTC', updatedCount: accounts.length });
     }
     
-    // 更新 ETH 價格
+    // 更新 ETH 價格（換算為台幣）
     if (results.crypto?.ethereum?.price) {
       const accounts = await prisma.account.findMany({
         where: {
@@ -165,11 +176,12 @@ export async function GET() {
       });
       
       for (const account of accounts) {
-        const currentValue = (account.quantity || 0) * results.crypto.ethereum.price;
+        const currentPriceTwd = Number(results.crypto.ethereum.price) * Number(usdToTwdRate || 1);
+        const currentValue = (account.quantity || 0) * currentPriceTwd;
         await prisma.account.update({
           where: { id: account.id },
           data: {
-            currentPrice: results.crypto.ethereum.price,
+            currentPrice: currentPriceTwd,
             currentValue,
           },
         });

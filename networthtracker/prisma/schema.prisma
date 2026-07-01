@@ -17,9 +17,13 @@ enum AccountType {
 
 enum AccountCategory {
   CASH
+  BANK_ACCOUNT
   TAIWAN_STOCK
   US_STOCK
   CRYPTO
+  FIXED_ASSET
+  RECEIVABLE
+  PAYABLE
   MORTGAGE
   CAR_LOAN
   CREDIT_LOAN
@@ -49,6 +53,9 @@ model Account {
   currentPrice  Float?          @default(0) // Current market price
   currentValue  Float           @default(0) // Calculated: quantity * currentPrice
   currency      Currency        @default(TWD)
+  monthlyDeductionAmount Float?     // Monthly deduction amount for liabilities
+  deductionDate Int?               // Day of month for automatic deduction (1-31)
+  deductFromAccountId String?      // Cash account to deduct from
   isActive      Boolean         @default(true)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt

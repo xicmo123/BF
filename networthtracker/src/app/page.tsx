@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,6 +54,13 @@ const categoryLabelMap: Record<string, string> = {
 
 const symbolRequiredCategories = ["TAIWAN_STOCK", "US_STOCK", "CRYPTO"];
 
+const assetAllocationCategories = [
+  { key: "CASH", label: "現金", color: "#10b981" },
+  { key: "TAIWAN_STOCK", label: "台股", color: "#3b82f6" },
+  { key: "US_STOCK", label: "美股", color: "#f59e0b" },
+  { key: "CRYPTO", label: "虛擬貨幣", color: "#8b5cf6" },
+];
+
 type Account = {
   id: string;
   name: string;
@@ -80,8 +89,53 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   const requiresSymbol = symbolRequiredCategories.includes(formData.category);
+
+  const summary = useMemo(() => {
+    const totalAssets = accounts
+      .filter((account) => account.type === "ASSET")
+      .reduce((sum, account) => sum + Number(account.currentValue ?? 0), 0);
+
+    const totalLiabilities = accounts
+      .filter((account) => account.type === "LIABILITY")
+      .reduce((sum, account) => sum + Number(account.currentValue ?? 0), 0);
+
+    return {
+      totalAssets,
+      totalLiabilities,
+      netWorth: totalAssets - totalLiabilities,
+    };
+  }, [accounts]);
+
+  const allocationData = useMemo(() => {
+    const totals = assetAllocationCategories.reduce(
+      (acc, category) => {
+        acc[category.key] = 0;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    accounts
+      .filter((account) => account.type === "ASSET")
+      .forEach((account) => {
+        if (totals[account.category] !== undefined) {
+          totals[account.category] += Number(account.currentValue ?? 0);
+        }
+      });
+
+    return assetAllocationCategories
+      .map((category) => ({
+        category: category.key,
+        name: category.label,
+        value: totals[category.key],
+        color: category.color,
+      }))
+      .filter((item) => item.value > 0);
+  }, [accounts]);
 
   useEffect(() => {
     fetchAccounts();
@@ -109,6 +163,7 @@ export default function HomePage() {
     event.preventDefault();
     setError(null);
     setMessage(null);
+    setSyncMessage(null);
 
     if (!formData.name.trim()) {
       setError("請填寫名稱。");
@@ -173,6 +228,43 @@ export default function HomePage() {
     }
   }
 
+  async function handleSyncPrices() {
+    setSyncing(true);
+    setError(null);
+    setMessage(null);
+    setSyncMessage(null);
+
+    try {
+      const response = await fetch("/api/test-fetch-prices");
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.message || "同步最新報價失敗。")
+      }
+
+      await fetchAccounts();
+      const updatedCount = result?.databaseUpdate?.updates?.length ?? 0;
+      setSyncMessage(
+        `已同步最新報價，成功更新 ${updatedCount} 類型的帳戶價格。`
+      );
+    } catch (syncError) {
+      setError(
+        syncError instanceof Error
+          ? syncError.message
+          : "同步最新報價時發生錯誤。"
+      );
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  function formatCurrency(value: number) {
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
@@ -184,6 +276,107 @@ export default function HomePage() {
             新增資產 / 負債，並在下方查看目前帳戶清單。
           </p>
         </div>
+
+        <Card className="border-slate-200 bg-white/80 shadow-sm">
+          <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <CardTitle>總覽儀表板</CardTitle>
+              <CardDescription>
+                查看淨資產、負債與資產分布，並同步最新報價。
+              </CardDescription>
+            </div>
+            <Button onClick={handleSyncPrices} disabled={syncing}>
+              {syncing ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  同步中...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  🔄 同步最新報價
+                </>
+              )}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {syncMessage ? (
+              <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                {syncMessage}
+              </p>
+            ) : null}
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card className="border-slate-200 bg-slate-50 shadow-sm">
+                <CardContent className="pt-6">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    總資產
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-950 dark:text-slate-50">
+                    NT$ {formatCurrency(summary.totalAssets)}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-slate-200 bg-slate-50 shadow-sm">
+                <CardContent className="pt-6">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    總負債
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-950 dark:text-slate-50">
+                    NT$ {formatCurrency(summary.totalLiabilities)}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-slate-200 bg-slate-50 shadow-sm">
+                <CardContent className="pt-6">
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    淨資產
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                    NT$ {formatCurrency(summary.netWorth)}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="mb-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                資產分布
+              </p>
+              {allocationData.length === 0 ? (
+                <div className="flex h-72 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+                  尚無足夠數據繪製圖表
+                </div>
+              ) : (
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={allocationData}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={70}
+                        outerRadius={110}
+                        paddingAngle={2}
+                      >
+                        {allocationData.map((item) => (
+                          <Cell key={item.category} fill={item.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => [
+                          `NT$ ${formatCurrency(Number(value ?? 0))}`,
+                          "金額",
+                        ]}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
