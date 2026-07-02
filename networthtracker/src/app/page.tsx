@@ -86,6 +86,8 @@ type Account = {
   apiSecret: string | null;
   currentPrice: number | null;
   currentValue: number;
+  monthlyDeductionAmount: number | null;
+  deductionDate: number | null;
   createdAt: string;
 };
 
@@ -232,8 +234,8 @@ export default function HomePage() {
       apiSource: account.apiSource ?? "BITFINEX",
       apiKey: account.apiKey ?? "",
       apiSecret: account.apiSecret ?? "",
-      monthlyDeductionAmount: "",
-      deductionDate: "",
+      monthlyDeductionAmount: account.monthlyDeductionAmount != null ? String(account.monthlyDeductionAmount) : "",
+      deductionDate: account.deductionDate != null ? String(account.deductionDate) : "",
     });
     setEditingAccountId(account.id);
     setShowForm(true);
