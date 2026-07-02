@@ -98,11 +98,15 @@ export async function POST(request: Request) {
     )
   }
 
-  const isApiMode = category === "CRYPTO" && Boolean(isApiConnected)
+  const isApiMode = Boolean(isApiConnected)
   const trimmedSymbol = typeof symbol === "string" ? symbol.trim() : ""
   const fallbackSymbol = (typeof apiSource === "string" ? apiSource.trim() : "") || "BITFINEX"
+  const requiresSymbolValidation =
+    (category === "CRYPTO" || category === "STOCK" || category === "TAIWAN_STOCK" || category === "US_STOCK") &&
+    !isApiMode &&
+    !trimmedSymbol
 
-  if (categoriesRequiringSymbol.includes(category) && !trimmedSymbol && !isApiMode) {
+  if (requiresSymbolValidation) {
     return NextResponse.json(
       { message: "Stocks and crypto accounts require a symbol." },
       { status: 400 }

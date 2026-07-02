@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import yahooFinance from 'yahoo-finance2';
 import { PrismaClient } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 const prisma = new PrismaClient();
 
 function normalizeCurrencyCode(value: string | null | undefined) {
@@ -22,22 +24,40 @@ function getNumericValue(value: unknown) {
   return 0;
 }
 
-function buildBitfinexAuthHeaders(apiKey: string, apiSecret: string, requestPath: string) {
-  const nonce = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  const requestBody = JSON.stringify({ request: requestPath, nonce });
-  const signaturePayload = `${nonce}${requestPath}${requestBody}`;
+function getYahooQuoteSymbol(category: string, symbol: string) {
+  const normalizedSymbol = symbol.trim().toUpperCase();
+
+  if (!normalizedSymbol) {
+    return normalizedSymbol;
+  }
+
+  if (category === 'CRYPTO') {
+    return normalizedSymbol.includes('-USD') ? normalizedSymbol : `${normalizedSymbol}-USD`;
+  }
+
+  return normalizedSymbol;
+}
+
+function buildBitfinexAuthHeaders(apiKey: string, apiSecret: string, requestPath: string, bodyObj: any = {}) {
+  const nonce = (Date.now() * 1000).toString();
+  const requestBody = JSON.stringify(bodyObj);
+  const signaturePayload = `/api${requestPath}${nonce}${requestBody}`;
   const signature = createHmac('sha384', apiSecret).update(signaturePayload).digest('hex');
 
   return {
     'Content-Type': 'application/json',
-    'bfx-apikey': apiKey,
     'bfx-nonce': nonce,
+    'bfx-apikey': apiKey,
     'bfx-signature': signature,
   };
 }
 
 async function fetchCryptoUsdPrices() {
-  const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,usd-coin&vs_currencies=usd');
+  const response = await fetch(
+    'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,usd-coin&vs_currencies=usd',
+    { cache: 'no-store' }
+  );
+
   if (!response.ok) {
     throw new Error(`CoinGecko API returned ${response.status}`);
   }
@@ -81,11 +101,12 @@ async function syncBitfinexAccount(account: { id: string; apiKey: string | null;
     return null;
   }
 
-  const headers = buildBitfinexAuthHeaders(account.apiKey, account.apiSecret, '/v2/auth/r/wallets');
+  const headers = buildBitfinexAuthHeaders(account.apiKey, account.apiSecret, '/v2/auth/r/wallets', {});
   const response = await fetch('https://api.bitfinex.com/v2/auth/r/wallets', {
     method: 'POST',
     headers,
-    body: JSON.stringify({ request: '/v2/auth/r/wallets' }),
+    body: JSON.stringify({}),
+    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -136,188 +157,84 @@ async function syncBitfinexAccount(account: { id: string; apiKey: string | null;
 export async function GET() {
   const results = {
     timestamp: new Date().toISOString(),
-    taiwanStock: null as any,
-    usStock: null as any,
-    crypto: null as any,
+    manualUpdates: [] as Array<{ symbol: string; category: string; price: number; currentValue: number }> ,
+    bitfinexUpdates: [] as Array<{ accountName: string; usdValue: number; twdValue: number }>,
     databaseUpdate: null as any,
     errors: [] as string[],
   };
 
-  try {
-    // 1. 測試台股：2330.TW (台積電)
-    console.log('Fetching Taiwan Stock: 2330.TW');
-    const yahoo = new yahooFinance();
-    const taiwanStockResult = await yahoo.quote('2330.TW');
-    results.taiwanStock = {
-      symbol: taiwanStockResult.symbol,
-      name: taiwanStockResult.longName,
-      price: taiwanStockResult.regularMarketPrice,
-      currency: taiwanStockResult.currency,
-      marketCap: taiwanStockResult.marketCap,
-    };
-    console.log('Taiwan Stock fetched:', results.taiwanStock);
-  } catch (error) {
-    const errorMsg = `Taiwan Stock error: ${error instanceof Error ? error.message : String(error)}`;
-    results.errors.push(errorMsg);
-    console.error(errorMsg);
-  }
-
+  const yahoo = new yahooFinance();
   let usdToTwdRate = 1;
 
   try {
-    // 2. 抓取 USD/TWD 匯率與美股：AAPL (蘋果)
-    console.log('Fetching USD/TWD rate and US Stock: AAPL');
-    const yahoo = new yahooFinance();
-    const [usdToTwdResult, usStockResult] = await Promise.all([
-      yahoo.quote('TWD=X'),
-      yahoo.quote('AAPL'),
-    ]);
-
+    const usdToTwdResult = await yahoo.quote('TWD=X');
     usdToTwdRate = Number(usdToTwdResult.regularMarketPrice || 1);
-
-    results.usStock = {
-      symbol: usStockResult.symbol,
-      name: usStockResult.longName,
-      price: usStockResult.regularMarketPrice,
-      currency: usStockResult.currency,
-      marketCap: usStockResult.marketCap,
-      usdToTwdRate,
-    };
-    console.log('US Stock fetched:', results.usStock);
   } catch (error) {
-    const errorMsg = `US Stock error: ${error instanceof Error ? error.message : String(error)}`;
+    const errorMsg = `USD/TWD rate error: ${error instanceof Error ? error.message : String(error)}`;
     results.errors.push(errorMsg);
     console.error(errorMsg);
   }
 
   try {
-    // 3. 測試虛擬貨幣：BTC 和 ETH (CoinGecko API)
-    console.log('Fetching Crypto prices from CoinGecko');
-    const cryptoResponse = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd'
-    );
+    const manualAccounts = await prisma.account.findMany({
+      where: {
+        isActive: true,
+        isApiConnected: false,
+        category: {
+          in: ['TAIWAN_STOCK', 'US_STOCK', 'CRYPTO'],
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
 
-    if (!cryptoResponse.ok) {
-      throw new Error(`CoinGecko API returned ${cryptoResponse.status}`);
+    for (const account of manualAccounts) {
+      const symbol = account.symbol?.trim();
+      if (!symbol) {
+        continue;
+      }
+
+      try {
+        const quoteSymbol = getYahooQuoteSymbol(account.category, symbol);
+        const quoteResult = await yahoo.quote(quoteSymbol);
+        const marketPrice = Number(quoteResult.regularMarketPrice || 0);
+
+        if (!marketPrice) {
+          continue;
+        }
+
+        const currentPrice = account.category === 'TAIWAN_STOCK' ? marketPrice : marketPrice * Number(usdToTwdRate || 1);
+        const currentValue = (account.quantity || 0) * currentPrice;
+
+        await prisma.account.update({
+          where: { id: account.id },
+          data: {
+            currentPrice,
+            currentValue,
+          },
+        });
+
+        results.manualUpdates.push({
+          symbol: quoteSymbol,
+          category: account.category,
+          price: currentPrice,
+          currentValue,
+        });
+      } catch (error) {
+        const errorMsg = `Quote error for ${account.symbol}: ${error instanceof Error ? error.message : String(error)}`;
+        results.errors.push(errorMsg);
+        console.error(errorMsg);
+      }
     }
-
-    const cryptoData = await cryptoResponse.json();
-    results.crypto = {
-      bitcoin: {
-        symbol: 'BTC',
-        price: cryptoData.bitcoin?.usd,
-        currency: 'USD',
-      },
-      ethereum: {
-        symbol: 'ETH',
-        price: cryptoData.ethereum?.usd,
-        currency: 'USD',
-      },
-    };
-    console.log('Crypto prices fetched:', results.crypto);
   } catch (error) {
-    const errorMsg = `Crypto error: ${error instanceof Error ? error.message : String(error)}`;
+    const errorMsg = `Manual account update error: ${error instanceof Error ? error.message : String(error)}`;
     results.errors.push(errorMsg);
     console.error(errorMsg);
   }
 
   try {
-    console.log('Updating database with new prices...');
-
-    const updates = [] as Array<{ symbol: string; updatedCount: number }>;
     const cryptoPrices = await fetchCryptoUsdPrices();
-
-    // 更新台股價格
-    if (results.taiwanStock?.price) {
-      const accounts = await prisma.account.findMany({
-        where: {
-          symbol: '2330.TW',
-          isActive: true,
-        },
-      });
-
-      for (const account of accounts) {
-        const currentValue = (account.quantity || 0) * results.taiwanStock.price;
-        await prisma.account.update({
-          where: { id: account.id },
-          data: {
-            currentPrice: results.taiwanStock.price,
-            currentValue,
-          },
-        });
-      }
-      updates.push({ symbol: '2330.TW', updatedCount: accounts.length });
-    }
-
-    // 更新美股價格（換算為台幣）
-    if (results.usStock?.price) {
-      const accounts = await prisma.account.findMany({
-        where: {
-          symbol: 'AAPL',
-          isActive: true,
-        },
-      });
-
-      for (const account of accounts) {
-        const currentPriceTwd = Number(results.usStock.price) * Number(usdToTwdRate || 1);
-        const currentValue = (account.quantity || 0) * currentPriceTwd;
-        await prisma.account.update({
-          where: { id: account.id },
-          data: {
-            currentPrice: currentPriceTwd,
-            currentValue,
-          },
-        });
-      }
-      updates.push({ symbol: 'AAPL', updatedCount: accounts.length });
-    }
-
-    // 更新 BTC 價格（換算為台幣）
-    if (results.crypto?.bitcoin?.price) {
-      const accounts = await prisma.account.findMany({
-        where: {
-          symbol: 'BTC',
-          isActive: true,
-        },
-      });
-
-      for (const account of accounts) {
-        const currentPriceTwd = Number(results.crypto.bitcoin.price) * Number(usdToTwdRate || 1);
-        const currentValue = (account.quantity || 0) * currentPriceTwd;
-        await prisma.account.update({
-          where: { id: account.id },
-          data: {
-            currentPrice: currentPriceTwd,
-            currentValue,
-          },
-        });
-      }
-      updates.push({ symbol: 'BTC', updatedCount: accounts.length });
-    }
-
-    // 更新 ETH 價格（換算為台幣）
-    if (results.crypto?.ethereum?.price) {
-      const accounts = await prisma.account.findMany({
-        where: {
-          symbol: 'ETH',
-          isActive: true,
-        },
-      });
-
-      for (const account of accounts) {
-        const currentPriceTwd = Number(results.crypto.ethereum.price) * Number(usdToTwdRate || 1);
-        const currentValue = (account.quantity || 0) * currentPriceTwd;
-        await prisma.account.update({
-          where: { id: account.id },
-          data: {
-            currentPrice: currentPriceTwd,
-            currentValue,
-          },
-        });
-      }
-      updates.push({ symbol: 'ETH', updatedCount: accounts.length });
-    }
-
     const apiAccounts = await prisma.account.findMany({
       where: {
         isActive: true,
@@ -330,20 +247,24 @@ export async function GET() {
     for (const account of apiAccounts) {
       const synced = await syncBitfinexAccount(account, usdToTwdRate, cryptoPrices);
       if (synced) {
-        updates.push({ symbol: `BITFINEX:${account.name}`, updatedCount: 1 });
+        results.bitfinexUpdates.push({
+          accountName: account.name,
+          usdValue: synced.usdValue,
+          twdValue: synced.twdValue,
+        });
       }
     }
-
-    results.databaseUpdate = {
-      message: 'Database update completed',
-      updates,
-    };
-    console.log('Database update completed:', results.databaseUpdate);
   } catch (error) {
-    const errorMsg = `Database update error: ${error instanceof Error ? error.message : String(error)}`;
+    const errorMsg = `Bitfinex sync error: ${error instanceof Error ? error.message : String(error)}`;
     results.errors.push(errorMsg);
     console.error(errorMsg);
   }
+
+  results.databaseUpdate = {
+    message: 'Database update completed',
+    manualUpdates: results.manualUpdates.length,
+    bitfinexUpdates: results.bitfinexUpdates.length,
+  };
 
   return NextResponse.json(results);
 }
