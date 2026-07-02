@@ -35,9 +35,9 @@ export default function LoginPage() {
         <section className="rounded-[2rem] border border-slate-200/70 bg-white/95 px-8 py-10 shadow-[0_25px_80px_-40px_rgba(15,23,42,0.3)] backdrop-blur-xl">
           <div className="mb-8 space-y-3 text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-slate-500">NetWorth Tracker</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">登入並查看資產資料</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">資產管理中心</h1>
             <p className="mx-auto max-w-xs text-sm leading-6 text-slate-600">
-              請使用預設帳號密碼登入，未登入的使用者將被導回此頁面。
+              請登入以存取您的資產管理中心。
             </p>
           </div>
 
@@ -89,11 +89,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-slate-200">
-            <p className="font-medium text-slate-700">測試帳號</p>
-            <p>帳號：<span className="font-semibold text-slate-900">xicmo123</span></p>
-            <p>密碼：<span className="font-semibold text-slate-900">afeck123</span></p>
-          </div>
+          
         </section>
       </div>
     </main>
